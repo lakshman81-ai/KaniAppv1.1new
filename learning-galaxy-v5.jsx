@@ -178,6 +178,98 @@ const setCachedData = (url, data) => {
   }
 };
 
+// ============ ERROR HELPERS ============
+const getErrorDetails = (error) => {
+  const errorMessage = error.message || String(error);
+
+  // Network/CORS errors
+  if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
+    return {
+      title: 'Network Error',
+      message: errorMessage,
+      hints: [
+        'Check your internet connection',
+        'Try disabling VPN or proxy if enabled',
+        'Firewall might be blocking the connection'
+      ]
+    };
+  }
+
+  // HTTP errors
+  if (errorMessage.includes('HTTP 404')) {
+    return {
+      title: 'Sheet Not Found',
+      message: 'Google Sheet not found or not published',
+      hints: [
+        'Verify the Sheet URL in Settings',
+        'Ensure the Sheet is published to web',
+        'Check: File → Share → Publish to web → CSV'
+      ]
+    };
+  }
+
+  if (errorMessage.includes('HTTP 403')) {
+    return {
+      title: 'Access Denied',
+      message: 'Cannot access the Google Sheet',
+      hints: [
+        'Sheet must be published to web (not just shared)',
+        'Go to File → Share → Publish to web',
+        'Select "Comma-separated values (.csv)" format'
+      ]
+    };
+  }
+
+  if (errorMessage.includes('HTTP 500') || errorMessage.includes('HTTP 503')) {
+    return {
+      title: 'Server Error',
+      message: 'Google Sheets is temporarily unavailable',
+      hints: [
+        'This is a temporary issue with Google',
+        'Try again in a few minutes',
+        'Check Google Workspace Status'
+      ]
+    };
+  }
+
+  // CORS errors
+  if (errorMessage.includes('CORS') || errorMessage.includes('cross-origin')) {
+    return {
+      title: 'Security Error',
+      message: 'Cannot load data due to browser security',
+      hints: [
+        'Ensure Sheet is published as CSV',
+        'URL must end with "?output=csv"',
+        'Try a different browser if issue persists'
+      ]
+    };
+  }
+
+  // Parse errors
+  if (errorMessage.includes('parse') || errorMessage.includes('JSON')) {
+    return {
+      title: 'Data Format Error',
+      message: 'Sheet data is not in valid CSV format',
+      hints: [
+        'Check for special characters in questions',
+        'Ensure CSV format is correct',
+        'Try re-publishing the Sheet'
+      ]
+    };
+  }
+
+  // Generic error
+  return {
+    title: 'Connection Error',
+    message: errorMessage,
+    hints: [
+      'Check your internet connection',
+      'Verify the Sheet URL in Settings',
+      'Contact support if issue persists'
+    ]
+  };
+};
+
 // ============ NETWORK RETRY UTILITY ============
 const fetchWithRetry = async (url, maxRetries = 3) => {
   let lastError;
@@ -775,28 +867,41 @@ const SheetBasedGame = ({ onBack, difficulty, onGameEnd, settings, gameId, title
   };
 
   if (loading) return <SpaceBackground variant={variant}><div className="flex items-center justify-center h-full"><LoadingSpinner /></div></SpaceBackground>;
-  if (error) return (
-    <SpaceBackground variant={variant}>
-      <div className="flex flex-col items-center justify-center h-full px-4">
-        <div className="bg-gray-900/80 rounded-2xl p-8 backdrop-blur max-w-md text-center">
-          <div className="text-6xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-white mb-4">Connection Error</h2>
-          <p className="text-red-400 mb-2">{error}</p>
-          <p className="text-gray-300 text-sm mb-6">
-            Unable to load questions from Google Sheets. Check your internet connection or verify the Sheet URL in settings.
-          </p>
-          <div className="flex gap-3 justify-center">
-            <button onClick={onBack} className="bg-gray-600 text-white px-6 py-3 rounded-full font-bold hover:bg-gray-500 transition-colors cursor-pointer">
-              ← Back
-            </button>
-            <button onClick={retry} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform cursor-pointer">
-              🔄 Retry
-            </button>
+  if (error) {
+    const errorDetails = getErrorDetails({ message: error });
+    return (
+      <SpaceBackground variant={variant}>
+        <div className="flex flex-col items-center justify-center h-full px-4">
+          <div className="bg-gray-900/80 rounded-2xl p-8 backdrop-blur max-w-md text-center">
+            <div className="text-6xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-bold text-white mb-3">{errorDetails.title}</h2>
+            <p className="text-red-400 mb-4 text-sm">{errorDetails.message}</p>
+
+            <div className="bg-gray-800/50 rounded-lg p-4 mb-6 text-left">
+              <p className="text-yellow-400 text-xs font-bold mb-2">💡 Try these solutions:</p>
+              <ul className="text-gray-300 text-xs space-y-1">
+                {errorDetails.hints.map((hint, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="text-yellow-400 mt-0.5">•</span>
+                    <span>{hint}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="flex gap-3 justify-center">
+              <button onClick={onBack} className="bg-gray-600 text-white px-6 py-3 rounded-full font-bold hover:bg-gray-500 transition-colors cursor-pointer">
+                ← Back
+              </button>
+              <button onClick={retry} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform cursor-pointer">
+                🔄 Retry
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </SpaceBackground>
-  );
+      </SpaceBackground>
+    );
+  }
 
   return (
     <SpaceBackground variant={variant}>
