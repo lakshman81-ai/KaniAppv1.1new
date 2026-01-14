@@ -27,327 +27,48 @@ const DEFAULT_SETTINGS = {
   soundEnabled: true
 };
 
-// ============ ROBUST CSV PARSER (RFC 4180 compliant) ============
+// ============ CSV PARSER ============
 const parseCSV = (csv) => {
-  if (!csv || typeof csv !== 'string') return [];
-
-  // Parse a single CSV row with proper quote handling
-  const parseRow = (row) => {
+  const lines = csv.split('\n').filter(line => line.trim());
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/['"]/g, ''));
+  return lines.slice(1).map(line => {
     const values = [];
     let current = '';
     let inQuotes = false;
-    let i = 0;
-
-    while (i < row.length) {
-      const char = row[i];
-      const nextChar = row[i + 1];
-
-      if (char === '"') {
-        if (inQuotes && nextChar === '"') {
-          // Escaped quote (doubled quotes within quoted field)
-          current += '"';
-          i += 2; // Skip both quotes
-          continue;
-        } else {
-          // Toggle quote state
-          inQuotes = !inQuotes;
-        }
-      } else if (char === ',' && !inQuotes) {
-        // End of field
-        values.push(cleanValue(current));
-        current = '';
-      } else {
-        // Regular character
-        current += char;
-      }
-      i++;
+    for (let char of line) {
+      if (char === '"') inQuotes = !inQuotes;
+      else if (char === ',' && !inQuotes) { values.push(current.trim()); current = ''; }
+      else current += char;
     }
-
-    // Push the last value
-    values.push(cleanValue(current));
-    return values;
-  };
-
-  // Clean and trim a CSV value
-  const cleanValue = (value) => {
-    // Trim whitespace
-    value = value.trim();
-
-    // Remove surrounding quotes if present
-    if (value.startsWith('"') && value.endsWith('"')) {
-      value = value.slice(1, -1);
-    }
-
-    return value;
-  };
-
-  try {
-    // Split into lines, but handle newlines within quoted fields
-    const rows = [];
-    let currentRow = '';
-    let inQuotes = false;
-
-    for (let i = 0; i < csv.length; i++) {
-      const char = csv[i];
-      const nextChar = csv[i + 1];
-
-      if (char === '"') {
-        if (inQuotes && nextChar === '"') {
-          currentRow += '""';
-          i++; // Skip next quote
-        } else {
-          inQuotes = !inQuotes;
-          currentRow += char;
-        }
-      } else if ((char === '\n' || char === '\r') && !inQuotes) {
-        // End of row (only if not inside quotes)
-        if (currentRow.trim()) {
-          rows.push(currentRow);
-        }
-        currentRow = '';
-        // Handle \r\n
-        if (char === '\r' && nextChar === '\n') i++;
-      } else {
-        currentRow += char;
-      }
-    }
-
-    // Don't forget last row
-    if (currentRow.trim()) {
-      rows.push(currentRow);
-    }
-
-    if (rows.length < 2) return [];
-
-    // Parse header row
-    const headers = parseRow(rows[0]).map(h => h.toLowerCase());
-
-    // Parse data rows
-    return rows.slice(1).map(row => {
-      const values = parseRow(row);
-      const obj = {};
-      headers.forEach((h, i) => {
-        obj[h] = values[i] || '';
-      });
-      return obj;
-    }).filter(obj => {
-      // Filter out empty rows
-      return Object.values(obj).some(v => v.trim());
-    });
-
-  } catch (e) {
-    console.error('CSV parsing error:', e);
-    return [];
-  }
+    values.push(current.trim());
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = values[i] || ''; });
+    return obj;
+  });
 };
 
-// ============ DATA FETCHING HOOK WITH CACHE ============
-const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
-
-const getCacheKey = (url) => `sheet-cache-${btoa(url).substring(0, 50)}`;
-
-const getCachedData = (url) => {
-  try {
-    const cacheKey = getCacheKey(url);
-    const cached = localStorage.getItem(cacheKey);
-    if (!cached) return null;
-
-    const { data, timestamp } = JSON.parse(cached);
-    const age = Date.now() - timestamp;
-
-    // Return cached data if less than 1 hour old
-    if (age < CACHE_DURATION) {
-      return data;
-    }
-
-    // Clear expired cache
-    localStorage.removeItem(cacheKey);
-    return null;
-  } catch (e) {
-    return null;
-  }
-};
-
-const setCachedData = (url, data) => {
-  try {
-    const cacheKey = getCacheKey(url);
-    const cacheEntry = { data, timestamp: Date.now() };
-    localStorage.setItem(cacheKey, JSON.stringify(cacheEntry));
-  } catch (e) {
-    // Ignore cache write errors (quota exceeded, etc.)
-  }
-};
-
-// ============ ERROR HELPERS ============
-const getErrorDetails = (error) => {
-  const errorMessage = error.message || String(error);
-
-  // Network/CORS errors
-  if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
-    return {
-      title: 'Network Error',
-      message: errorMessage,
-      hints: [
-        'Check your internet connection',
-        'Try disabling VPN or proxy if enabled',
-        'Firewall might be blocking the connection'
-      ]
-    };
-  }
-
-  // HTTP errors
-  if (errorMessage.includes('HTTP 404')) {
-    return {
-      title: 'Sheet Not Found',
-      message: 'Google Sheet not found or not published',
-      hints: [
-        'Verify the Sheet URL in Settings',
-        'Ensure the Sheet is published to web',
-        'Check: File → Share → Publish to web → CSV'
-      ]
-    };
-  }
-
-  if (errorMessage.includes('HTTP 403')) {
-    return {
-      title: 'Access Denied',
-      message: 'Cannot access the Google Sheet',
-      hints: [
-        'Sheet must be published to web (not just shared)',
-        'Go to File → Share → Publish to web',
-        'Select "Comma-separated values (.csv)" format'
-      ]
-    };
-  }
-
-  if (errorMessage.includes('HTTP 500') || errorMessage.includes('HTTP 503')) {
-    return {
-      title: 'Server Error',
-      message: 'Google Sheets is temporarily unavailable',
-      hints: [
-        'This is a temporary issue with Google',
-        'Try again in a few minutes',
-        'Check Google Workspace Status'
-      ]
-    };
-  }
-
-  // CORS errors
-  if (errorMessage.includes('CORS') || errorMessage.includes('cross-origin')) {
-    return {
-      title: 'Security Error',
-      message: 'Cannot load data due to browser security',
-      hints: [
-        'Ensure Sheet is published as CSV',
-        'URL must end with "?output=csv"',
-        'Try a different browser if issue persists'
-      ]
-    };
-  }
-
-  // Parse errors
-  if (errorMessage.includes('parse') || errorMessage.includes('JSON')) {
-    return {
-      title: 'Data Format Error',
-      message: 'Sheet data is not in valid CSV format',
-      hints: [
-        'Check for special characters in questions',
-        'Ensure CSV format is correct',
-        'Try re-publishing the Sheet'
-      ]
-    };
-  }
-
-  // Generic error
-  return {
-    title: 'Connection Error',
-    message: errorMessage,
-    hints: [
-      'Check your internet connection',
-      'Verify the Sheet URL in Settings',
-      'Contact support if issue persists'
-    ]
-  };
-};
-
-// ============ NETWORK RETRY UTILITY ============
-const fetchWithRetry = async (url, maxRetries = 3) => {
-  let lastError;
-
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      return await response.text();
-    } catch (error) {
-      lastError = error;
-
-      // Don't retry on last attempt
-      if (attempt < maxRetries - 1) {
-        // Exponential backoff: 1s, 2s, 4s
-        const delay = Math.pow(2, attempt) * 1000;
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-    }
-  }
-
-  throw lastError;
-};
-
+// ============ DATA FETCHING HOOK ============
 const useSheetData = (url, gameType) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [retryTrigger, setRetryTrigger] = useState(0);
-  const [fromCache, setFromCache] = useState(false);
 
   useEffect(() => {
     if (!url) { setLoading(false); return; }
-
-    // Try to load from cache first
-    const cached = getCachedData(url);
-    if (cached) {
-      const parsed = parseCSV(cached);
-      const filtered = gameType ? parsed.filter(row => row.game_type === gameType) : parsed;
-      setData(filtered);
-      setFromCache(true);
-      setLoading(false);
-
-      // Still fetch in background to update cache (with retry)
-      fetchWithRetry(url)
-        .then(csv => {
-          setCachedData(url, csv);
-          const parsed = parseCSV(csv);
-          const filtered = gameType ? parsed.filter(row => row.game_type === gameType) : parsed;
-          setData(filtered);
-          setFromCache(false);
-        })
-        .catch(() => {
-          // Silently fail background update, already have cached data
-        });
-      return;
-    }
-
-    // No cache - fetch normally with retry
     setLoading(true);
-    setError(null);
-    setFromCache(false);
-    fetchWithRetry(url)
+    fetch(url)
+      .then(res => res.text())
       .then(csv => {
-        setCachedData(url, csv);
         const parsed = parseCSV(csv);
         const filtered = gameType ? parsed.filter(row => row.game_type === gameType) : parsed;
         setData(filtered);
         setLoading(false);
       })
       .catch(err => { setError(err.message); setLoading(false); });
-  }, [url, gameType, retryTrigger]);
+  }, [url, gameType]);
 
-  const retry = () => setRetryTrigger(prev => prev + 1);
-
-  return { data, loading, error, retry, fromCache };
+  return { data, loading, error };
 };
 
 // ============ SHARED COMPONENTS ============
@@ -453,7 +174,7 @@ const formatTime = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(
 const SheetBasedGame = ({ onBack, difficulty, onGameEnd, settings, gameId, title, icon, color, variant, questionType }) => {
   const isMath = ['space-math', 'alien-invasion', 'bubble-pop', 'planet-hopper', 'fraction-frenzy', 'time-warp', 'money-master', 'geometry-galaxy'].includes(gameId);
   const sheetUrl = isMath ? settings.mathSheetUrl : settings.englishSheetUrl;
-  const { data: allQuestions, loading, error, retry } = useSheetData(sheetUrl, gameId);
+  const { data: allQuestions, loading, error } = useSheetData(sheetUrl, gameId);
 
   const [stars, setStars] = useState(0);
   const [timer, setTimer] = useState(difficulty === 'Hard' ? 30 : difficulty === 'Medium' ? 40 : 50);
@@ -485,15 +206,14 @@ const SheetBasedGame = ({ onBack, difficulty, onGameEnd, settings, gameId, title
   }, [getNextQuestion]);
 
   useEffect(() => {
-    // Only start timer if game is active AND a question is loaded
-    if (gameActive && timer > 0 && currentQ) {
+    if (gameActive && timer > 0) {
       const interval = setInterval(() => setTimer(t => t - 1), 1000);
       return () => clearInterval(interval);
     } else if (timer === 0 && gameActive) {
       setGameActive(false);
       setGameOver(true);
     }
-  }, [gameActive, timer, currentQ]);
+  }, [gameActive, timer]);
 
   const startGame = () => {
     setStars(0);
@@ -703,11 +423,8 @@ const SheetBasedGame = ({ onBack, difficulty, onGameEnd, settings, gameId, title
 
     // Story comprehension
     if (gameId === 'story-nebula') {
-      // Format: text1=title, text2=story, category=question, answer=correct answer, option1-4=all options
+      // New format: text1=title, text2=story, answer=question, option1=correct answer
       const options = [currentQ.option1, currentQ.option2, currentQ.option3, currentQ.option4].filter(Boolean);
-      const questionText = currentQ.category || currentQ.answer; // Fallback for old format
-      const correctAnswer = currentQ.answer;
-
       return (
         <div className="w-full max-w-2xl">
           <div className="bg-gray-900/80 rounded-2xl p-4 backdrop-blur mb-4 max-h-40 overflow-y-auto">
@@ -715,12 +432,12 @@ const SheetBasedGame = ({ onBack, difficulty, onGameEnd, settings, gameId, title
             <p className="text-white text-sm leading-relaxed">{currentQ.text2}</p>
           </div>
           <div className="bg-teal-900/60 rounded-2xl p-4 mb-4">
-            <div className="text-white text-lg font-medium">❓ {questionText}</div>
+            <div className="text-white text-lg font-medium">❓ {currentQ.answer}</div>
           </div>
           <div className="grid grid-cols-1 gap-2 relative z-20">
             {options.map((opt, i) => (
-              <button key={i} onClick={() => handleAnswer(opt, correctAnswer)}
-                className={`p-3 rounded-xl text-left font-medium transition-all cursor-pointer ${feedback ? (opt === correctAnswer ? 'bg-green-500 text-white' : 'bg-gray-700 text-gray-400')
+              <button key={i} onClick={() => handleAnswer(opt, currentQ.option1)}
+                className={`p-3 rounded-xl text-left font-medium transition-all cursor-pointer ${feedback ? (opt === currentQ.option1 ? 'bg-green-500 text-white' : 'bg-gray-700 text-gray-400')
                   : 'bg-teal-600 text-white hover:bg-teal-500'
                   }`}>{opt}</button>
             ))}
@@ -867,41 +584,7 @@ const SheetBasedGame = ({ onBack, difficulty, onGameEnd, settings, gameId, title
   };
 
   if (loading) return <SpaceBackground variant={variant}><div className="flex items-center justify-center h-full"><LoadingSpinner /></div></SpaceBackground>;
-  if (error) {
-    const errorDetails = getErrorDetails({ message: error });
-    return (
-      <SpaceBackground variant={variant}>
-        <div className="flex flex-col items-center justify-center h-full px-4">
-          <div className="bg-gray-900/80 rounded-2xl p-8 backdrop-blur max-w-md text-center">
-            <div className="text-6xl mb-4">⚠️</div>
-            <h2 className="text-2xl font-bold text-white mb-3">{errorDetails.title}</h2>
-            <p className="text-red-400 mb-4 text-sm">{errorDetails.message}</p>
-
-            <div className="bg-gray-800/50 rounded-lg p-4 mb-6 text-left">
-              <p className="text-yellow-400 text-xs font-bold mb-2">💡 Try these solutions:</p>
-              <ul className="text-gray-300 text-xs space-y-1">
-                {errorDetails.hints.map((hint, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <span className="text-yellow-400 mt-0.5">•</span>
-                    <span>{hint}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="flex gap-3 justify-center">
-              <button onClick={onBack} className="bg-gray-600 text-white px-6 py-3 rounded-full font-bold hover:bg-gray-500 transition-colors cursor-pointer">
-                ← Back
-              </button>
-              <button onClick={retry} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform cursor-pointer">
-                🔄 Retry
-              </button>
-            </div>
-          </div>
-        </div>
-      </SpaceBackground>
-    );
-  }
+  if (error) return <SpaceBackground variant={variant}><div className="flex flex-col items-center justify-center h-full"><p className="text-red-400 mb-4">Error: {error}</p><button onClick={onBack} className="bg-gray-600 text-white px-6 py-3 rounded-full cursor-pointer">Back</button></div></SpaceBackground>;
 
   return (
     <SpaceBackground variant={variant}>
@@ -960,52 +643,12 @@ const ALL_GAMES = [...MATH_GAMES, ...GRAMMAR_GAMES, ...VOCABULARY_GAMES, ...COMP
 // ============ SETTINGS PAGE ============
 const SettingsPage = ({ settings, setSettings, onBack }) => {
   const [localSettings, setLocalSettings] = useState(settings);
-  const [urlErrors, setUrlErrors] = useState({ math: '', english: '' });
-
-  const validateGoogleSheetUrl = (url) => {
-    if (!url || !url.trim()) return 'URL is required';
-
-    // Check if it's a valid Google Sheets published CSV URL
-    const googleSheetsPattern = /^https:\/\/docs\.google\.com\/spreadsheets\/d\/(e\/)?[\w-]+\/pub\?output=csv/;
-
-    if (!googleSheetsPattern.test(url)) {
-      return 'Invalid Google Sheets URL. Must be a published CSV link (File → Share → Publish to web → CSV)';
-    }
-
-    return '';
-  };
-
-  const handleMathUrlChange = (url) => {
-    setLocalSettings({ ...localSettings, mathSheetUrl: url });
-    setUrlErrors({ ...urlErrors, math: validateGoogleSheetUrl(url) });
-  };
-
-  const handleEnglishUrlChange = (url) => {
-    setLocalSettings({ ...localSettings, englishSheetUrl: url });
-    setUrlErrors({ ...urlErrors, english: validateGoogleSheetUrl(url) });
-  };
 
   const handleSave = async () => {
-    // Validate before saving
-    const mathError = validateGoogleSheetUrl(localSettings.mathSheetUrl);
-    const englishError = validateGoogleSheetUrl(localSettings.englishSheetUrl);
-
-    if (mathError || englishError) {
-      setUrlErrors({ math: mathError, english: englishError });
-      return;
-    }
-
     setSettings(localSettings);
     try { await storage.set('learning-galaxy-settings', JSON.stringify(localSettings)); } catch (e) { }
     onBack();
   };
-
-  const handleReset = () => {
-    setLocalSettings(DEFAULT_SETTINGS);
-    setUrlErrors({ math: '', english: '' });
-  };
-
-  const isValid = !validateGoogleSheetUrl(localSettings.mathSheetUrl) && !validateGoogleSheetUrl(localSettings.englishSheetUrl);
 
   return (
     <SpaceBackground>
@@ -1015,15 +658,13 @@ const SettingsPage = ({ settings, setSettings, onBack }) => {
         <div className="w-full max-w-lg space-y-6 relative z-20">
           <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
             <h2 className="text-xl font-bold text-white mb-4">🔢 Math Questions Sheet</h2>
-            <textarea value={localSettings.mathSheetUrl} onChange={(e) => handleMathUrlChange(e.target.value)}
-              className={`w-full px-4 py-3 rounded-lg bg-gray-700 text-white border ${urlErrors.math ? 'border-red-500' : 'border-gray-600'} focus:border-yellow-500 focus:outline-none text-xs font-mono resize-none`} rows={3} />
-            {urlErrors.math && <p className="text-red-400 text-xs mt-2">⚠️ {urlErrors.math}</p>}
+            <textarea value={localSettings.mathSheetUrl} onChange={(e) => setLocalSettings({ ...localSettings, mathSheetUrl: e.target.value })}
+              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none text-xs font-mono resize-none" rows={3} />
           </div>
           <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
             <h2 className="text-xl font-bold text-white mb-4">📚 English Questions Sheet</h2>
-            <textarea value={localSettings.englishSheetUrl} onChange={(e) => handleEnglishUrlChange(e.target.value)}
-              className={`w-full px-4 py-3 rounded-lg bg-gray-700 text-white border ${urlErrors.english ? 'border-red-500' : 'border-gray-600'} focus:border-yellow-500 focus:outline-none text-xs font-mono resize-none`} rows={3} />
-            {urlErrors.english && <p className="text-red-400 text-xs mt-2">⚠️ {urlErrors.english}</p>}
+            <textarea value={localSettings.englishSheetUrl} onChange={(e) => setLocalSettings({ ...localSettings, englishSheetUrl: e.target.value })}
+              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none text-xs font-mono resize-none" rows={3} />
           </div>
           <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
             <h2 className="text-xl font-bold text-white mb-4">🎯 Default Difficulty</h2>
@@ -1034,13 +675,7 @@ const SettingsPage = ({ settings, setSettings, onBack }) => {
               <option value="Hard">Hard</option>
             </select>
           </div>
-          <div className="flex gap-3">
-            <button onClick={handleReset} className="flex-1 bg-gray-600 text-white px-6 py-4 rounded-full text-lg font-bold hover:bg-gray-500 transition-colors cursor-pointer">🔄 Reset</button>
-            <button onClick={handleSave} disabled={!isValid}
-              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-4 rounded-full text-lg font-bold hover:scale-105 transition-transform shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
-              💾 Save
-            </button>
-          </div>
+          <button onClick={handleSave} className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-transform shadow-lg cursor-pointer">💾 Save Settings</button>
         </div>
       </div>
     </SpaceBackground>
