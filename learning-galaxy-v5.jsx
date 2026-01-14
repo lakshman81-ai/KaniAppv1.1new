@@ -48,23 +48,92 @@ const parseCSV = (csv) => {
   });
 };
 
-// ============ DATA FETCHING HOOK ============
+// ============ DATA FETCHING HOOK WITH CACHE ============
+const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
+
+const getCacheKey = (url) => `sheet-cache-${btoa(url).substring(0, 50)}`;
+
+const getCachedData = (url) => {
+  try {
+    const cacheKey = getCacheKey(url);
+    const cached = localStorage.getItem(cacheKey);
+    if (!cached) return null;
+
+    const { data, timestamp } = JSON.parse(cached);
+    const age = Date.now() - timestamp;
+
+    // Return cached data if less than 1 hour old
+    if (age < CACHE_DURATION) {
+      return data;
+    }
+
+    // Clear expired cache
+    localStorage.removeItem(cacheKey);
+    return null;
+  } catch (e) {
+    return null;
+  }
+};
+
+const setCachedData = (url, data) => {
+  try {
+    const cacheKey = getCacheKey(url);
+    const cacheEntry = { data, timestamp: Date.now() };
+    localStorage.setItem(cacheKey, JSON.stringify(cacheEntry));
+  } catch (e) {
+    // Ignore cache write errors (quota exceeded, etc.)
+  }
+};
+
 const useSheetData = (url, gameType) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [retryTrigger, setRetryTrigger] = useState(0);
+  const [fromCache, setFromCache] = useState(false);
 
   useEffect(() => {
     if (!url) { setLoading(false); return; }
+
+    // Try to load from cache first
+    const cached = getCachedData(url);
+    if (cached) {
+      const parsed = parseCSV(cached);
+      const filtered = gameType ? parsed.filter(row => row.game_type === gameType) : parsed;
+      setData(filtered);
+      setFromCache(true);
+      setLoading(false);
+
+      // Still fetch in background to update cache
+      fetch(url)
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          return res.text();
+        })
+        .then(csv => {
+          setCachedData(url, csv);
+          const parsed = parseCSV(csv);
+          const filtered = gameType ? parsed.filter(row => row.game_type === gameType) : parsed;
+          setData(filtered);
+          setFromCache(false);
+        })
+        .catch(() => {
+          // Silently fail background update, already have cached data
+        });
+      return;
+    }
+
+    // No cache - fetch normally
     setLoading(true);
     setError(null);
+    setFromCache(false);
     fetch(url)
       .then(res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
         return res.text();
       })
       .then(csv => {
+        setCachedData(url, csv);
         const parsed = parseCSV(csv);
         const filtered = gameType ? parsed.filter(row => row.game_type === gameType) : parsed;
         setData(filtered);
@@ -75,7 +144,7 @@ const useSheetData = (url, gameType) => {
 
   const retry = () => setRetryTrigger(prev => prev + 1);
 
-  return { data, loading, error, retry };
+  return { data, loading, error, retry, fromCache };
 };
 
 // ============ SHARED COMPONENTS ============
