@@ -423,8 +423,11 @@ const SheetBasedGame = ({ onBack, difficulty, onGameEnd, settings, gameId, title
 
     // Story comprehension
     if (gameId === 'story-nebula') {
-      // New format: text1=title, text2=story, answer=question, option1=correct answer
+      // Format: text1=title, text2=story, category=question, answer=correct answer, option1-4=all options
       const options = [currentQ.option1, currentQ.option2, currentQ.option3, currentQ.option4].filter(Boolean);
+      const questionText = currentQ.category || currentQ.answer; // Fallback for old format
+      const correctAnswer = currentQ.answer;
+
       return (
         <div className="w-full max-w-2xl">
           <div className="bg-gray-900/80 rounded-2xl p-4 backdrop-blur mb-4 max-h-40 overflow-y-auto">
@@ -432,12 +435,12 @@ const SheetBasedGame = ({ onBack, difficulty, onGameEnd, settings, gameId, title
             <p className="text-white text-sm leading-relaxed">{currentQ.text2}</p>
           </div>
           <div className="bg-teal-900/60 rounded-2xl p-4 mb-4">
-            <div className="text-white text-lg font-medium">❓ {currentQ.answer}</div>
+            <div className="text-white text-lg font-medium">❓ {questionText}</div>
           </div>
           <div className="grid grid-cols-1 gap-2 relative z-20">
             {options.map((opt, i) => (
-              <button key={i} onClick={() => handleAnswer(opt, currentQ.option1)}
-                className={`p-3 rounded-xl text-left font-medium transition-all cursor-pointer ${feedback ? (opt === currentQ.option1 ? 'bg-green-500 text-white' : 'bg-gray-700 text-gray-400')
+              <button key={i} onClick={() => handleAnswer(opt, correctAnswer)}
+                className={`p-3 rounded-xl text-left font-medium transition-all cursor-pointer ${feedback ? (opt === correctAnswer ? 'bg-green-500 text-white' : 'bg-gray-700 text-gray-400')
                   : 'bg-teal-600 text-white hover:bg-teal-500'
                   }`}>{opt}</button>
             ))}
