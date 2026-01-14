@@ -646,12 +646,52 @@ const ALL_GAMES = [...MATH_GAMES, ...GRAMMAR_GAMES, ...VOCABULARY_GAMES, ...COMP
 // ============ SETTINGS PAGE ============
 const SettingsPage = ({ settings, setSettings, onBack }) => {
   const [localSettings, setLocalSettings] = useState(settings);
+  const [urlErrors, setUrlErrors] = useState({ math: '', english: '' });
+
+  const validateGoogleSheetUrl = (url) => {
+    if (!url || !url.trim()) return 'URL is required';
+
+    // Check if it's a valid Google Sheets published CSV URL
+    const googleSheetsPattern = /^https:\/\/docs\.google\.com\/spreadsheets\/d\/(e\/)?[\w-]+\/pub\?output=csv/;
+
+    if (!googleSheetsPattern.test(url)) {
+      return 'Invalid Google Sheets URL. Must be a published CSV link (File → Share → Publish to web → CSV)';
+    }
+
+    return '';
+  };
+
+  const handleMathUrlChange = (url) => {
+    setLocalSettings({ ...localSettings, mathSheetUrl: url });
+    setUrlErrors({ ...urlErrors, math: validateGoogleSheetUrl(url) });
+  };
+
+  const handleEnglishUrlChange = (url) => {
+    setLocalSettings({ ...localSettings, englishSheetUrl: url });
+    setUrlErrors({ ...urlErrors, english: validateGoogleSheetUrl(url) });
+  };
 
   const handleSave = async () => {
+    // Validate before saving
+    const mathError = validateGoogleSheetUrl(localSettings.mathSheetUrl);
+    const englishError = validateGoogleSheetUrl(localSettings.englishSheetUrl);
+
+    if (mathError || englishError) {
+      setUrlErrors({ math: mathError, english: englishError });
+      return;
+    }
+
     setSettings(localSettings);
     try { await storage.set('learning-galaxy-settings', JSON.stringify(localSettings)); } catch (e) { }
     onBack();
   };
+
+  const handleReset = () => {
+    setLocalSettings(DEFAULT_SETTINGS);
+    setUrlErrors({ math: '', english: '' });
+  };
+
+  const isValid = !validateGoogleSheetUrl(localSettings.mathSheetUrl) && !validateGoogleSheetUrl(localSettings.englishSheetUrl);
 
   return (
     <SpaceBackground>
@@ -661,13 +701,15 @@ const SettingsPage = ({ settings, setSettings, onBack }) => {
         <div className="w-full max-w-lg space-y-6 relative z-20">
           <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
             <h2 className="text-xl font-bold text-white mb-4">🔢 Math Questions Sheet</h2>
-            <textarea value={localSettings.mathSheetUrl} onChange={(e) => setLocalSettings({ ...localSettings, mathSheetUrl: e.target.value })}
-              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none text-xs font-mono resize-none" rows={3} />
+            <textarea value={localSettings.mathSheetUrl} onChange={(e) => handleMathUrlChange(e.target.value)}
+              className={`w-full px-4 py-3 rounded-lg bg-gray-700 text-white border ${urlErrors.math ? 'border-red-500' : 'border-gray-600'} focus:border-yellow-500 focus:outline-none text-xs font-mono resize-none`} rows={3} />
+            {urlErrors.math && <p className="text-red-400 text-xs mt-2">⚠️ {urlErrors.math}</p>}
           </div>
           <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
             <h2 className="text-xl font-bold text-white mb-4">📚 English Questions Sheet</h2>
-            <textarea value={localSettings.englishSheetUrl} onChange={(e) => setLocalSettings({ ...localSettings, englishSheetUrl: e.target.value })}
-              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none text-xs font-mono resize-none" rows={3} />
+            <textarea value={localSettings.englishSheetUrl} onChange={(e) => handleEnglishUrlChange(e.target.value)}
+              className={`w-full px-4 py-3 rounded-lg bg-gray-700 text-white border ${urlErrors.english ? 'border-red-500' : 'border-gray-600'} focus:border-yellow-500 focus:outline-none text-xs font-mono resize-none`} rows={3} />
+            {urlErrors.english && <p className="text-red-400 text-xs mt-2">⚠️ {urlErrors.english}</p>}
           </div>
           <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
             <h2 className="text-xl font-bold text-white mb-4">🎯 Default Difficulty</h2>
@@ -678,7 +720,13 @@ const SettingsPage = ({ settings, setSettings, onBack }) => {
               <option value="Hard">Hard</option>
             </select>
           </div>
-          <button onClick={handleSave} className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-transform shadow-lg cursor-pointer">💾 Save Settings</button>
+          <div className="flex gap-3">
+            <button onClick={handleReset} className="flex-1 bg-gray-600 text-white px-6 py-4 rounded-full text-lg font-bold hover:bg-gray-500 transition-colors cursor-pointer">🔄 Reset</button>
+            <button onClick={handleSave} disabled={!isValid}
+              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-4 rounded-full text-lg font-bold hover:scale-105 transition-transform shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+              💾 Save
+            </button>
+          </div>
         </div>
       </div>
     </SpaceBackground>
