@@ -213,14 +213,15 @@ const SheetBasedGame = ({ onBack, difficulty, onGameEnd, settings, gameId, title
   }, [getNextQuestion]);
 
   useEffect(() => {
-    if (gameActive && timer > 0) {
+    // Only start timer if game is active AND a question is loaded
+    if (gameActive && timer > 0 && currentQ) {
       const interval = setInterval(() => setTimer(t => t - 1), 1000);
       return () => clearInterval(interval);
     } else if (timer === 0 && gameActive) {
       setGameActive(false);
       setGameOver(true);
     }
-  }, [gameActive, timer]);
+  }, [gameActive, timer, currentQ]);
 
   const startGame = () => {
     setStars(0);
