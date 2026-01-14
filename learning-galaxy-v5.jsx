@@ -85,6 +85,32 @@ const setCachedData = (url, data) => {
   }
 };
 
+// ============ NETWORK RETRY UTILITY ============
+const fetchWithRetry = async (url, maxRetries = 3) => {
+  let lastError;
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return await response.text();
+    } catch (error) {
+      lastError = error;
+
+      // Don't retry on last attempt
+      if (attempt < maxRetries - 1) {
+        // Exponential backoff: 1s, 2s, 4s
+        const delay = Math.pow(2, attempt) * 1000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  throw lastError;
+};
+
 const useSheetData = (url, gameType) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -104,12 +130,8 @@ const useSheetData = (url, gameType) => {
       setFromCache(true);
       setLoading(false);
 
-      // Still fetch in background to update cache
-      fetch(url)
-        .then(res => {
-          if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-          return res.text();
-        })
+      // Still fetch in background to update cache (with retry)
+      fetchWithRetry(url)
         .then(csv => {
           setCachedData(url, csv);
           const parsed = parseCSV(csv);
@@ -123,15 +145,11 @@ const useSheetData = (url, gameType) => {
       return;
     }
 
-    // No cache - fetch normally
+    // No cache - fetch normally with retry
     setLoading(true);
     setError(null);
     setFromCache(false);
-    fetch(url)
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-        return res.text();
-      })
+    fetchWithRetry(url)
       .then(csv => {
         setCachedData(url, csv);
         const parsed = parseCSV(csv);
