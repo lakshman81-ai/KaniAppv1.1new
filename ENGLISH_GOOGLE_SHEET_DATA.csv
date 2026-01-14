@@ -1,0 +1,118 @@
+game_type,text1,text2,answer,option1,option2,option3,option4,difficulty,category,know_more
+grammar-galaxy,She don't like apples.,Subject-Verb Agreement,doesn't,doesn't,don't,didn't,won't,Easy,grammar,She is singular so use DOESN'T not don't!
+grammar-galaxy,The cats is sleeping.,Subject-Verb Agreement,are,is,are,was,be,Easy,grammar,Cats is plural so use ARE not is!
+grammar-galaxy,Him went to school.,Pronoun,He,Him,He,His,Her,Easy,grammar,Use HE for subject (doing action). HIM is for objects.
+grammar-galaxy,I seen the movie yesterday.,Verb Tense,saw,seen,saw,see,seeing,Easy,grammar,Past tense of see is SAW. Seen needs have/had before it.
+grammar-galaxy,They was very happy.,Subject-Verb Agreement,were,was,were,is,be,Easy,grammar,They is plural so use WERE not was!
+grammar-galaxy,She run very fast everyday.,Subject-Verb Agreement,runs,run,runs,running,ran,Medium,grammar,She/He/It needs an S on the verb! She RUNS.
+grammar-galaxy,The dog chased it's tail.,Apostrophe,its,it's,its,its',it,Medium,grammar,ITS (no apostrophe) = belonging to it. IT'S = it is.
+grammar-galaxy,Everyone have finished their work.,Subject-Verb Agreement,has,have,has,had,having,Medium,grammar,Everyone is singular! Use HAS not have.
+grammar-galaxy,She speaks more louder than him.,Comparative,louder,more louder,louder,more loud,loudest,Medium,grammar,Never use MORE with -ER words. Just LOUDER not more louder!
+grammar-galaxy,Between you and I this is wrong.,Pronoun,me,I,me,myself,mine,Medium,grammar,Between you and ME. Object pronouns after prepositions!
+grammar-galaxy,The team are playing good today.,Adverb/Adjective,well,good,well,better,best,Hard,grammar,WELL is the adverb. GOOD is an adjective. Playing WELL!
+grammar-galaxy,If I was you I would leave now.,Subjunctive,were,was,were,am,be,Hard,grammar,If I WERE you - subjunctive mood for hypotheticals!
+grammar-galaxy,The number of students have increased.,Subject-Verb Agreement,has,have,has,had,having,Hard,grammar,The NUMBER (singular) HAS increased. Numbers HAVE...
+grammar-galaxy,Whom is responsible for this mess?,Pronoun,Who,Whom,Who,Whose,Which,Hard,grammar,WHO for subjects (doing action). WHOM for objects.
+grammar-galaxy,She lay the book on the table.,Verb Form,laid,lay,laid,lain,lied,Hard,grammar,LAY needs an object (lay something). Past tense is LAID.
+word-class-warp,dog,noun,noun,noun,verb,adjective,adverb,Easy,parts-of-speech,Nouns are people places things or ideas. Dog is a thing!
+word-class-warp,run,verb,verb,noun,verb,adjective,adverb,Easy,parts-of-speech,Verbs are action words - what you DO. Run is an action!
+word-class-warp,beautiful,adjective,adjective,noun,verb,adjective,adverb,Easy,parts-of-speech,Adjectives describe nouns. Beautiful flower - beautiful is adjective!
+word-class-warp,quickly,adverb,adverb,noun,verb,adjective,adverb,Easy,parts-of-speech,Adverbs describe verbs (how you do things). Run QUICKLY!
+word-class-warp,happiness,noun,noun,noun,verb,adjective,adverb,Easy,parts-of-speech,Happiness is a thing (an idea/feeling) so its a noun!
+word-class-warp,think,verb,verb,noun,verb,adjective,adverb,Medium,parts-of-speech,Think is what your brain DOES - its an action verb!
+word-class-warp,enormous,adjective,adjective,noun,verb,adjective,adverb,Medium,parts-of-speech,Enormous describes size. Enormous elephant - its an adjective!
+word-class-warp,silently,adverb,adverb,noun,verb,adjective,adverb,Medium,parts-of-speech,-LY ending usually means adverb! Silently describes HOW.
+word-class-warp,freedom,noun,noun,noun,verb,adjective,adverb,Medium,parts-of-speech,Freedom is an idea/concept - abstract noun!
+word-class-warp,discover,verb,verb,noun,verb,adjective,adverb,Medium,parts-of-speech,Discover is what scientists DO - its an action verb!
+word-class-warp,mysterious,adjective,adjective,noun,verb,adjective,adverb,Hard,parts-of-speech,Mysterious describes something. The mysterious box!
+word-class-warp,communicate,verb,verb,noun,verb,adjective,adverb,Hard,parts-of-speech,Communicate is an action - something you DO with others!
+word-class-warp,extremely,adverb,adverb,noun,verb,adjective,adverb,Hard,parts-of-speech,Extremely modifies adjectives/adverbs. Extremely fast!
+word-class-warp,achievement,noun,noun,noun,verb,adjective,adverb,Hard,parts-of-speech,Achievement is a thing you earn - its a noun!
+word-class-warp,brilliant,adjective,adjective,noun,verb,adjective,adverb,Hard,parts-of-speech,Brilliant describes someone/something. A brilliant idea!
+punctuation-pop,What time is it,question,?,.,?,!,",",Easy,punctuation,Questions need question marks! They ask something.
+punctuation-pop,I love ice cream,statement,.,.,?,!,",",Easy,punctuation,Statements (telling facts) end with periods.
+punctuation-pop,Wow that is amazing,exclamation,!,.,?,!,",",Easy,punctuation,Exclamations show strong feelings! Use exclamation marks!
+punctuation-pop,Where are you going,question,?,.,?,!,",",Easy,punctuation,Where When What Why How = question words need ?
+punctuation-pop,Stop right there,command,!,.,?,!,",",Easy,punctuation,Commands can use ! for urgency or . for calm commands.
+punctuation-pop,The cat sat on the mat,statement,.,.,?,!,",",Medium,punctuation,This tells us something happened - its a statement (.)
+punctuation-pop,How beautiful the sunset is,exclamation,!,.,?,!,",",Medium,punctuation,Strong emotion about beauty - use exclamation mark!
+punctuation-pop,Can you help me please,question,?,.,?,!,",",Medium,punctuation,Asking for help = question. Needs ?
+punctuation-pop,She said hello to me,statement,.,.,?,!,",",Medium,punctuation,Reporting what happened = statement. Ends with period.
+punctuation-pop,What a wonderful day,exclamation,!,.,?,!,",",Medium,punctuation,What a... shows strong feeling = exclamation!
+punctuation-pop,Have you finished your homework,question,?,.,?,!,",",Hard,punctuation,Have you...? Is asking - needs question mark!
+punctuation-pop,I cannot believe it,exclamation,!,.,?,!,",",Hard,punctuation,Strong disbelief = strong emotion = exclamation!
+punctuation-pop,The train leaves at noon,statement,.,.,?,!,",",Hard,punctuation,Giving information calmly = statement with period.
+punctuation-pop,Watch out for that car,command,!,.,?,!,",",Hard,punctuation,Urgent warning command - exclamation mark!
+punctuation-pop,Did she really say that,question,?,.,?,!,",",Hard,punctuation,Did she...? = question asking for yes/no answer.
+tense-traveler,walk,past,walked,walk,walked,walks,will walk,Easy,tenses,Past tense adds -ED for regular verbs. Walk → Walked!
+tense-traveler,walk,present,walks,walk,walked,walks,will walk,Easy,tenses,Present tense for he/she adds -S. He walks every day.
+tense-traveler,walk,future,will walk,walk,walked,walks,will walk,Easy,tenses,Future tense uses WILL + verb. Will walk tomorrow.
+tense-traveler,run,past,ran,run,ran,runs,will run,Easy,tenses,Run is irregular! Past = RAN not runned.
+tense-traveler,run,present,runs,run,ran,runs,will run,Easy,tenses,He/She RUNS every morning. Add -S for present.
+tense-traveler,eat,past,ate,eat,ate,eats,will eat,Medium,tenses,Eat is irregular. Past = ATE. Yesterday I ate pizza.
+tense-traveler,eat,future,will eat,eat,ate,eats,will eat,Medium,tenses,Tomorrow I WILL EAT breakfast. WILL + base verb.
+tense-traveler,write,past,wrote,write,wrote,writes,will write,Medium,tenses,Write → Wrote (past). Irregular verb!
+tense-traveler,sing,past,sang,sing,sang,sings,will sing,Medium,tenses,Sing → Sang (past). She sang beautifully yesterday.
+tense-traveler,swim,past,swam,swim,swam,swims,will swim,Medium,tenses,Swim → Swam (past). We swam in the pool.
+tense-traveler,think,past,thought,think,thought,thinks,will think,Hard,tenses,Think → Thought. Irregular - memorize it!
+tense-traveler,speak,past,spoke,speak,spoke,speaks,will speak,Hard,tenses,Speak → Spoke (past). He spoke to the class.
+tense-traveler,bring,past,brought,bring,brought,brings,will bring,Hard,tenses,Bring → Brought. Similar to think → thought!
+tense-traveler,teach,past,taught,teach,taught,teaches,will teach,Hard,tenses,Teach → Taught. The teacher taught math.
+tense-traveler,catch,past,caught,catch,caught,catches,will catch,Hard,tenses,Catch → Caught. I caught the ball yesterday.
+synonym-stars,happy,synonym,joyful,joyful,sad,angry,tired,Easy,vocabulary,Synonyms mean the SAME thing! Happy = Joyful.
+synonym-stars,big,synonym,large,large,small,tiny,short,Easy,vocabulary,Big and Large mean the same - both describe size!
+synonym-stars,fast,synonym,quick,quick,slow,lazy,heavy,Easy,vocabulary,Fast and Quick both mean speedy!
+synonym-stars,smart,synonym,intelligent,intelligent,dumb,slow,weak,Easy,vocabulary,Smart = Intelligent = Clever. All mean brainy!
+synonym-stars,beautiful,synonym,gorgeous,gorgeous,ugly,plain,dull,Easy,vocabulary,Beautiful and Gorgeous both mean very pretty!
+synonym-stars,begin,synonym,start,start,end,finish,stop,Medium,vocabulary,Begin and Start mean the same - to commence!
+synonym-stars,brave,synonym,courageous,courageous,scared,afraid,weak,Medium,vocabulary,Brave = Courageous = Fearless. Same meaning!
+synonym-stars,calm,synonym,peaceful,peaceful,angry,wild,loud,Medium,vocabulary,Calm and Peaceful both mean tranquil and quiet.
+synonym-stars,difficult,synonym,hard,hard,easy,simple,clear,Medium,vocabulary,Difficult = Hard = Challenging. Same meaning!
+synonym-stars,enormous,synonym,huge,huge,tiny,small,little,Medium,vocabulary,Enormous = Huge = Gigantic. All mean very big!
+synonym-stars,ancient,synonym,old,old,new,modern,young,Hard,vocabulary,Ancient means very very old - from long ago!
+synonym-stars,purchase,synonym,buy,buy,sell,give,throw,Hard,vocabulary,Purchase is a fancy word for buy!
+synonym-stars,vanish,synonym,disappear,disappear,appear,arrive,stay,Hard,vocabulary,Vanish = Disappear. Both mean go away suddenly!
+synonym-stars,wealthy,synonym,rich,rich,poor,broke,needy,Hard,vocabulary,Wealthy = Rich = Affluent. Having lots of money!
+synonym-stars,rapid,synonym,swift,swift,slow,lazy,still,Hard,vocabulary,Rapid = Swift = Fast = Quick. All mean speedy!
+antonym-asteroids,happy,antonym,sad,sad,joyful,glad,pleased,Easy,vocabulary,Antonyms are OPPOSITES! Happy ↔ Sad.
+antonym-asteroids,big,antonym,small,small,large,huge,giant,Easy,vocabulary,Big is the opposite of Small!
+antonym-asteroids,fast,antonym,slow,slow,quick,rapid,swift,Easy,vocabulary,Fast ↔ Slow. Complete opposites!
+antonym-asteroids,hot,antonym,cold,cold,warm,heated,burning,Easy,vocabulary,Hot and Cold are temperature opposites!
+antonym-asteroids,light,antonym,dark,dark,bright,shiny,glowing,Easy,vocabulary,Light ↔ Dark. Day vs Night!
+antonym-asteroids,old,antonym,new,new,ancient,aged,elderly,Medium,vocabulary,Old ↔ New. Ancient ↔ Modern.
+antonym-asteroids,love,antonym,hate,hate,adore,like,cherish,Medium,vocabulary,Love is strong positive feeling. Hate is the opposite!
+antonym-asteroids,begin,antonym,end,end,start,commence,initiate,Medium,vocabulary,Begin/Start ↔ End/Finish.
+antonym-asteroids,easy,antonym,difficult,difficult,simple,effortless,basic,Medium,vocabulary,Easy ↔ Difficult/Hard.
+antonym-asteroids,rich,antonym,poor,poor,wealthy,affluent,prosperous,Medium,vocabulary,Rich ↔ Poor. Having money vs not having money.
+antonym-asteroids,brave,antonym,cowardly,cowardly,bold,fearless,heroic,Hard,vocabulary,Brave (facing fear) ↔ Cowardly (running from fear).
+antonym-asteroids,smooth,antonym,rough,rough,silky,soft,gentle,Hard,vocabulary,Smooth ↔ Rough. Think of textures!
+antonym-asteroids,ancient,antonym,modern,modern,old,aged,antique,Hard,vocabulary,Ancient (very old) ↔ Modern (current/new).
+antonym-asteroids,generous,antonym,selfish,selfish,kind,giving,charitable,Hard,vocabulary,Generous (giving) ↔ Selfish (keeping for yourself).
+antonym-asteroids,humble,antonym,proud,proud,modest,meek,shy,Hard,vocabulary,Humble (modest) ↔ Proud (thinking highly of self).
+story-nebula,The Lost Puppy,Emma found a small puppy in the park. It was brown with white spots and looked hungry. She gave it her sandwich and the puppy wagged its tail.,Where did Emma find the puppy?,In the park,At school,At home,In a store,Easy,comprehension,Read carefully! The story says in the park.
+story-nebula,The Lost Puppy,Emma found a small puppy in the park. It was brown with white spots and looked hungry. She gave it her sandwich and the puppy wagged its tail.,What color was the puppy?,Brown with white spots,Black,White,Gray,Easy,comprehension,Look for color words - brown with white spots!
+story-nebula,The Lost Puppy,Emma found a small puppy in the park. It was brown with white spots and looked hungry. She gave it her sandwich and the puppy wagged its tail.,What did Emma give the puppy?,Her sandwich,Water,A toy,Nothing,Easy,comprehension,She GAVE it her sandwich - giving means sharing!
+story-nebula,The Science Fair,Tom made a volcano for the science fair. He used baking soda and vinegar to make it erupt. Everyone clapped and he won second place.,What was Toms project?,A volcano,Planets,Plants,Animals,Easy,comprehension,His project was a VOLCANO that erupted!
+story-nebula,The Science Fair,Tom made a volcano for the science fair. He used baking soda and vinegar to make it erupt. Everyone clapped and he won second place.,What made it erupt?,Baking soda and vinegar,Water,Paint,Fire,Medium,comprehension,Baking soda + vinegar = chemical reaction = eruption!
+story-nebula,The Rainy Day,Sarah wanted to play outside but it was raining. She built a blanket fort with her brother. They read books until the rain stopped.,Why couldnt Sarah play outside?,It was raining,She was sick,Too hot,Had homework,Easy,comprehension,Look for the reason - IT WAS RAINING!
+story-nebula,The Rainy Day,Sarah wanted to play outside but it was raining. She built a blanket fort with her brother. They read books until the rain stopped.,What did Sarah build?,A blanket fort,Treehouse,Puzzle,Snowman,Medium,comprehension,She BUILT a blanket fort - building with blankets!
+story-nebula,The Rainy Day,Sarah wanted to play outside but it was raining. She built a blanket fort with her brother. They read books until the rain stopped.,Who helped Sarah?,Her brother,Her mom,Her friend,No one,Medium,comprehension,WITH her brother means he helped!
+story-nebula,The Library Visit,Jake went to the library with his grandmother. He found a book about dinosaurs and the librarian helped him check it out.,Where did Jake go?,The library,The park,School,The store,Hard,comprehension,The first sentence tells us - the LIBRARY!
+story-nebula,The Library Visit,Jake went to the library with his grandmother. He found a book about dinosaurs and the librarian helped him check it out.,What was the book about?,Dinosaurs,Cars,Space,Dogs,Hard,comprehension,He found a book ABOUT DINOSAURS!
+story-nebula,Birthday Cake,Mom baked a cake for Dads birthday. She used chocolate frosting. When Dad came home he was surprised and happy.,What did Mom bake?,A cake,Cookies,Pie,Bread,Hard,comprehension,Mom BAKED a CAKE - look for the action and object!
+story-nebula,Birthday Cake,Mom baked a cake for Dads birthday. She used chocolate frosting. When Dad came home he was surprised and happy.,How did Dad feel?,Surprised and happy,Angry,Sad,Tired,Hard,comprehension,Look for feeling words - SURPRISED and HAPPY!
+inference-investigator,Maria grabbed her umbrella before leaving the house.,What can you infer about the weather?,It might rain,Very hot,Snowing,Windy,Easy,inference,Umbrella = expecting rain! Good inference!
+inference-investigator,The boys eyes grew wide when he opened the present.,How did the boy feel?,Surprised or excited,Disappointed,Angry,Bored,Easy,inference,Eyes growing wide = surprise or excitement!
+inference-investigator,Sarah yawned and rubbed her eyes during the movie.,What can you infer about Sarah?,She was tired,Scared,Hungry,Cold,Easy,inference,Yawning + rubbing eyes = signs of being tired!
+inference-investigator,The dog wagged its tail and jumped when Tom came home.,How did the dog feel?,Happy to see Tom,Scared,Hungry,Sleepy,Easy,inference,Wagging tail + jumping = dog is happy and excited!
+inference-investigator,Mom put on her apron and took out flour and eggs.,What is Mom going to do?,Bake something,Go shopping,Clean,Watch TV,Easy,inference,Apron + flour + eggs = baking ingredients!
+inference-investigator,The students cheered when teacher said no homework.,How did students feel?,Happy,Sad,Confused,Angry,Medium,inference,Cheering = celebrating = happy about no homework!
+inference-investigator,Dad put on his coat and grabbed car keys.,What is Dad about to do?,Leave the house,Go to sleep,Eat dinner,Watch TV,Medium,inference,Coat + car keys = going somewhere by car!
+inference-investigator,The flowers were drooping and the soil was dry.,What do the flowers need?,Water,Sunlight,Fertilizer,Nothing,Medium,inference,Drooping + dry soil = thirsty plants need water!
+inference-investigator,Lisa smiled and hugged grandma at the airport.,How does Lisa feel?,Happy,Sad,Angry,Scared,Medium,inference,Smiling + hugging = happy to see grandma!
+inference-investigator,The baby cried when loud thunder boomed.,Why is the baby crying?,Thunder scared baby,Baby hungry,Baby tired,Baby hot,Medium,inference,Loud sounds can scare babies - the thunder frightened the baby!
+inference-investigator,Sam practiced piano two hours daily for a month.,What can you infer about Sam?,Wants to improve,Hates piano,Is lazy,No hobbies,Hard,inference,Practicing a lot = dedicated = wants to get better!
+inference-investigator,The bird built a nest and gathered twigs.,What is the bird preparing for?,Having baby birds,Winter,Storm,Moving,Hard,inference,Nest building = preparing for eggs and baby birds!
+inference-investigator,Everyone sang Happy Birthday to Emma.,What event is happening?,Birthday party,Wedding,Graduation,Concert,Hard,inference,Happy Birthday song = birthday celebration!
+inference-investigator,The doctor gave Amy a bandage for her knee.,What happened to Amy?,She hurt her knee,Has cold,Has fever,Is hungry,Hard,inference,Bandage on knee = knee injury or scrape!
+inference-investigator,Empty cookie jar sat on counter with crumbs.,What happened to cookies?,Someone ate them,In oven,Thrown away,Nothing,Hard,inference,Empty jar + crumbs = cookies were eaten!

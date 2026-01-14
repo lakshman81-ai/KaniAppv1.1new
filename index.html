@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning Galaxy - Grade 3-4 Games</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body,
+    #root {
+      height: 100%;
+      width: 100%;
+    }
+
+    @keyframes twinkle {
+
+      0%,
+      100% {
+        opacity: 0.3;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes rocketLaunch {
+      0% {
+        transform: translate(-50%, 0);
+      }
+
+      100% {
+        transform: translate(-50%, -100px);
+        opacity: 0;
+      }
+    }
+
+    @keyframes alienFloat {
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(-5deg);
+      }
+
+      50% {
+        transform: translateY(-15px) rotate(5deg);
+      }
+    }
+
+    @keyframes bubbleFloat {
+
+      0%,
+      100% {
+        transform: translateY(0) scale(1);
+      }
+
+      50% {
+        transform: translateY(-12px) scale(1.05);
+      }
+    }
+
+    @keyframes planetOrbit {
+      0% {
+        transform: rotate(0deg) translateX(10px) rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg) translateX(10px) rotate(-360deg);
+      }
+    }
+
+    @keyframes coinSpin {
+      0% {
+        transform: rotateY(0deg);
+      }
+
+      100% {
+        transform: rotateY(360deg);
+      }
+    }
+
+    @keyframes starTwinkle {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(0.8);
+      }
+    }
+
+    @keyframes asteroidMove {
+      0% {
+        transform: translateX(-20px) rotate(0deg);
+      }
+
+      50% {
+        transform: translateX(20px) rotate(180deg);
+      }
+
+      100% {
+        transform: translateX(-20px) rotate(360deg);
+      }
+    }
+
+    @keyframes portalPulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 20px currentColor;
+      }
+
+      50% {
+        box-shadow: 0 0 40px currentColor, 0 0 60px currentColor;
+      }
+    }
+
+    @keyframes bookGlow {
+
+      0%,
+      100% {
+        filter: drop-shadow(0 0 10px rgba(255, 200, 100, 0.5));
+      }
+
+      50% {
+        filter: drop-shadow(0 0 20px rgba(255, 200, 100, 0.8));
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useCallback } = React;
+
+    // ============ STORAGE ============
+    const storage = {
+      get: async (key) => { try { const v = localStorage.getItem(key); return v ? { value: v } : null; } catch (e) { return null; } },
+      set: async (key, value) => { try { localStorage.setItem(key, value); } catch (e) { } }
+    };
+
+    // ============ CONFIG ============
+    const SETTINGS_PASSWORD = 'superdad';
+    const DEFAULT_SETTINGS = {
+      mathSheetUrl: './MATH_GOOGLE_SHEET_DATA.csv',
+      englishSheetUrl: './ENGLISH_GOOGLE_SHEET_DATA.csv',
+      defaultDifficulty: 'None'
+    };
+
+    // ============ CSV PARSER ============
+    const parseCSV = (csv) => {
+      const lines = csv.split('\n').filter(line => line.trim());
+      if (lines.length < 2) return [];
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/['"]/g, ''));
+      return lines.slice(1).map(line => {
+        const values = []; let current = ''; let inQuotes = false;
+        for (let char of line) {
+          if (char === '"') inQuotes = !inQuotes;
+          else if (char === ',' && !inQuotes) { values.push(current.trim()); current = ''; }
+          else current += char;
+        }
+        values.push(current.trim());
+        const obj = {}; headers.forEach((h, i) => { obj[h] = values[i] || ''; }); return obj;
+      });
+    };
+
+    // Embedded sample data for file:// protocol fallback
+    const FALLBACK_MATH_DATA = [
+      // Space Math (Easy)
+      { game_type: 'space-math', num1: '5', num2: '3', operation: '+', answer: '8', option1: '8', option2: '7', option3: '9', option4: '6', difficulty: 'Easy', know_more: 'Addition means combining numbers together! 5 + 3 = 8' },
+      { game_type: 'space-math', num1: '12', num2: '7', operation: '+', answer: '19', option1: '19', option2: '18', option3: '20', option4: '17', difficulty: 'Easy', know_more: 'When adding, count up from the bigger number!' },
+      { game_type: 'space-math', num1: '8', num2: '4', operation: '-', answer: '4', option1: '4', option2: '3', option3: '5', option4: '6', difficulty: 'Easy', know_more: 'Subtraction means taking away. 8 - 4 = 4' },
+      { game_type: 'space-math', num1: '9', num2: '9', operation: '+', answer: '18', option1: '18', option2: '16', option3: '19', option4: '17', difficulty: 'Easy', know_more: 'These are doubles! 9 plus 9 makes 18.' },
+      { game_type: 'space-math', num1: '15', num2: '6', operation: '-', answer: '9', option1: '9', option2: '8', option3: '10', option4: '7', difficulty: 'Easy', know_more: 'Count backwards from 15 six times to find 9!' },
+
+      // Space Math (Medium)
+      { game_type: 'space-math', num1: '6', num2: '7', operation: '×', answer: '42', option1: '42', option2: '36', option3: '48', option4: '35', difficulty: 'Medium', know_more: 'Multiplication is repeated addition! 6 × 7 = 42' },
+      { game_type: 'space-math', num1: '8', num2: '4', operation: '×', answer: '32', option1: '32', option2: '28', option3: '36', option4: '24', difficulty: 'Medium', know_more: '8 groups of 4 equals 32!' },
+      { game_type: 'space-math', num1: '45', num2: '18', operation: '+', answer: '63', option1: '63', option2: '60', option3: '65', option4: '58', difficulty: 'Medium', know_more: 'Add ones first (5+8=13), then tens!' },
+
+      // Alien Invasion (Easy)
+      { game_type: 'alien-invasion', num1: '7', num2: '3', operation: '-', answer: '4', option1: '4', option2: '3', option3: '5', option4: '6', difficulty: 'Easy', know_more: 'Quick subtraction: 7 - 3 = 4' },
+      { game_type: 'alien-invasion', num1: '3', num2: '2', operation: '+', answer: '5', option1: '5', option2: '4', option3: '6', option4: '7', difficulty: 'Easy', know_more: '3 aliens plus 2 aliens equals 5 aliens!' },
+      { game_type: 'alien-invasion', num1: '10', num2: '4', operation: '-', answer: '6', option1: '6', option2: '5', option3: '7', option4: '4', difficulty: 'Easy', know_more: 'Ten fingers minus 4 fingers leaves 6!' },
+      { game_type: 'alien-invasion', num1: '6', num2: '3', operation: '+', answer: '9', option1: '9', option2: '8', option3: '10', option4: '7', difficulty: 'Easy', know_more: '6 plus 3 is 9. A number bond!' },
+      { game_type: 'alien-invasion', num1: '4', num2: '5', operation: '+', answer: '9', option1: '9', option2: '8', option3: '7', option4: '10', difficulty: 'Easy', know_more: 'Turn it around: 5 plus 4 is also 9!' },
+
+      // Alien Invasion (Medium)
+      { game_type: 'alien-invasion', num1: '5', num2: '4', operation: '×', answer: '20', option1: '20', option2: '16', option3: '24', option4: '25', difficulty: 'Medium', know_more: '5 × 4 = 20. Five groups of four!' },
+      { game_type: 'alien-invasion', num1: '6', num2: '6', operation: '×', answer: '36', option1: '36', option2: '30', option3: '42', option4: '32', difficulty: 'Medium', know_more: '6 squared is 36!' },
+      { game_type: 'alien-invasion', num1: '7', num2: '8', operation: '×', answer: '56', option1: '56', option2: '54', option3: '48', option4: '64', difficulty: 'Medium', know_more: '5, 6, 7, 8... 56 = 7 x 8!' },
+
+      // Bubble Pop (All levels)
+      { game_type: 'bubble-pop', num1: '4', num2: '4', operation: '+', answer: '8', option1: '8', option2: '7', option3: '9', option4: '6', difficulty: 'Easy', know_more: 'Double 4 equals 8! 4 + 4 = 8' },
+      { game_type: 'bubble-pop', num1: '2', num2: '3', operation: '+', answer: '5', option1: '5', option2: '4', option3: '6', option4: '9', difficulty: 'Easy', know_more: '2 popped bubbles plus 3 more is 5!' },
+      { game_type: 'bubble-pop', num1: '9', num2: '5', operation: '-', answer: '4', option1: '4', option2: '5', option3: '6', option4: '3', difficulty: 'Easy', know_more: 'Take 5 away from 9 to get 4.' },
+      { game_type: 'bubble-pop', num1: '3', num2: '4', operation: '×', answer: '12', option1: '12', option2: '10', option3: '14', option4: '16', difficulty: 'Medium', know_more: '3 × 4 = 12. Three groups of four!' },
+      { game_type: 'bubble-pop', num1: '20', num2: '4', operation: '÷', answer: '5', option1: '5', option2: '4', option3: '6', option4: '8', difficulty: 'Medium', know_more: '20 divided by 4 is 5.' },
+
+      // Planet Hopper (Easy)
+      { game_type: 'planet-hopper', num1: '2 4 6 ? 10', num2: 'sequence', operation: 'sequence', answer: '8', option1: '8', option2: '6', option3: '10', option4: '12', difficulty: 'Easy', know_more: 'This is counting by 2s! Add 2 each time.' },
+      { game_type: 'planet-hopper', num1: '5 10 15 ? 25', num2: 'sequence', operation: 'sequence', answer: '20', option1: '20', option2: '15', option3: '25', option4: '30', difficulty: 'Easy', know_more: 'This is counting by 5s! Add 5 each time.' },
+      { game_type: 'planet-hopper', num1: '3 6 9 ? 15', num2: 'sequence', operation: 'sequence', answer: '12', option1: '12', option2: '10', option3: '14', option4: '11', difficulty: 'Easy', know_more: 'Multiples of 3: 3, 6, 9, 12!' },
+      { game_type: 'planet-hopper', num1: '10 20 30 ? 50', num2: 'sequence', operation: 'sequence', answer: '40', option1: '40', option2: '35', option3: '45', option4: '60', difficulty: 'Easy', know_more: 'Counting by 10s is fun! 10, 20, 30, 40.' },
+      { game_type: 'planet-hopper', num1: '1 2 3 ? 5', num2: 'sequence', operation: 'sequence', answer: '4', option1: '4', option2: '3', option3: '6', option4: '2', difficulty: 'Easy', know_more: 'Counting by 1s: 1, 2, 3, 4, 5!' },
+
+      // Fraction Frenzy (Easy)
+      { game_type: 'fraction-frenzy', num1: '1/2 vs 1/4', num2: 'compare', answer: '1/2', option1: '1/2', option2: '1/4', option3: '1/3', option4: '2/3', difficulty: 'Easy', know_more: 'Half (1/2) is bigger than quarter (1/4)!' },
+      { game_type: 'fraction-frenzy', num1: '3/4 vs 1/2', num2: 'compare', answer: '3/4', option1: '3/4', option2: '1/2', option3: '2/3', option4: '1/4', difficulty: 'Easy', know_more: 'Three quarters is more than half!' },
+      { game_type: 'fraction-frenzy', num1: '2/3 vs 1/3', num2: 'compare', answer: '2/3', option1: '2/3', option2: '1/3', option3: '1/4', option4: '1/2', difficulty: 'Easy', know_more: 'Two slices (2/3) is more than one slice (1/3)!' },
+      { game_type: 'fraction-frenzy', num1: '1/2 vs 1/8', num2: 'compare', answer: '1/2', option1: '1/2', option2: '1/8', option3: '1/4', option4: '1/3', difficulty: 'Easy', know_more: '1/2 is definitely bigger than 1/8.' },
+      { game_type: 'fraction-frenzy', num1: '2/4 vs 1/4', num2: 'compare', answer: '2/4', option1: '2/4', option2: '1/4', option3: '3/4', option4: '1/8', difficulty: 'Easy', know_more: '2 quarters are more than 1 quarter.' },
+
+      // Time Warp (Easy)
+      { game_type: 'time-warp', num1: '3', num2: '0', operation: 'read', answer: '3:00', option1: '3:00', option2: '6:00', option3: '9:00', option4: '12:00', difficulty: 'Easy', know_more: 'The short hand points to the hour!' },
+      { game_type: 'time-warp', num1: '6', num2: '0', operation: 'read', answer: '6:00', option1: '6:00', option2: '3:00', option3: '9:00', option4: '12:00', difficulty: 'Easy', know_more: 'Short hand on 6, long hand on 12 means 6:00.' },
+      { game_type: 'time-warp', num1: '9', num2: '0', operation: 'read', answer: '9:00', option1: '9:00', option2: '6:00', option3: '3:00', option4: '12:00', difficulty: 'Easy', know_more: 'It is 9 o\'clock!' },
+      { game_type: 'time-warp', num1: '12', num2: '0', operation: 'read', answer: '12:00', option1: '12:00', option2: '6:00', option3: '9:00', option4: '1:00', difficulty: 'Easy', know_more: 'Both hands point up at 12:00.' },
+      { game_type: 'time-warp', num1: '3', num2: '30', operation: 'read', answer: '3:30', option1: '3:30', option2: '3:00', option3: '4:00', option4: '4:30', difficulty: 'Easy', know_more: 'Half past 3 is 3:30.' },
+
+      // Money Master (Easy)
+      { game_type: 'money-master', num1: '2 quarters + 1 dime', num2: 'count', answer: '60¢', option1: '60¢', option2: '50¢', option3: '70¢', option4: '55¢', difficulty: 'Easy', know_more: 'Quarter = 25¢, Dime = 10¢. So 25+25+10 = 60¢' },
+      { game_type: 'money-master', num1: '3 dimes', num2: 'count', answer: '30¢', option1: '30¢', option2: '25¢', option3: '35¢', option4: '40¢', difficulty: 'Easy', know_more: 'Each dime is 10 cents. 10 + 10 + 10 = 30¢' },
+      { game_type: 'money-master', num1: '1 quarter + 2 dimes', num2: 'count', answer: '45¢', option1: '45¢', option2: '40¢', option3: '50¢', option4: '35¢', difficulty: 'Easy', know_more: '25¢ + 10¢ + 10¢ = 45¢' },
+      { game_type: 'money-master', num1: '1 quarter + 1 dime', num2: 'count', answer: '35¢', option1: '35¢', option2: '30¢', option3: '40¢', option4: '45¢', difficulty: 'Easy', know_more: '25¢ + 10¢ = 35¢' },
+      { game_type: 'money-master', num1: '5 dimes', num2: 'count', answer: '50¢', option1: '50¢', option2: '45¢', option3: '55¢', option4: '40¢', difficulty: 'Easy', know_more: '5 times 10 is 50 cents!' },
+
+      // Geometry Galaxy (Easy)
+      { game_type: 'geometry-galaxy', num1: 'triangle', text1: 'triangle', operation: 'identify', answer: 'Triangle', option1: 'Triangle', option2: 'Square', option3: 'Circle', option4: 'Rectangle', difficulty: 'Easy', know_more: 'A triangle has 3 sides and 3 corners!' },
+      { game_type: 'geometry-galaxy', num1: 'square', text1: 'square', operation: 'identify', answer: 'Square', option1: 'Square', option2: 'Triangle', option3: 'Circle', option4: 'Rectangle', difficulty: 'Easy', know_more: 'All 4 sides are equal on a square.' },
+      { game_type: 'geometry-galaxy', num1: 'circle', text1: 'circle', operation: 'identify', answer: 'Circle', option1: 'Circle', option2: 'Oval', option3: 'Square', option4: 'Triangle', difficulty: 'Easy', know_more: 'A circle is perfectly round.' },
+      { game_type: 'geometry-galaxy', num1: 'rectangle', text1: 'rectangle', operation: 'identify', answer: 'Rectangle', option1: 'Rectangle', option2: 'Square', option3: 'Triangle', option4: 'Oval', difficulty: 'Easy', know_more: 'A rectangle has two long sides and two short sides.' },
+      { game_type: 'geometry-galaxy', num1: 'pentagon', text1: 'pentagon', operation: 'identify', answer: 'Pentagon', option1: 'Pentagon', option2: 'Hexagon', option3: 'Square', option4: 'Octagon', difficulty: 'Easy', know_more: 'A pentagon has 5 sides!' },
+    ];
+
+    const FALLBACK_ENGLISH_DATA = [
+      // Grammar Galaxy
+      { game_type: 'grammar-galaxy', text1: 'She don\'t like apples.', text2: 'Subject-Verb Agreement', answer: 'doesn\'t', option1: 'doesn\'t', option2: 'don\'t', option3: 'didn\'t', option4: 'won\'t', difficulty: 'Easy', know_more: 'Use "doesn\'t" with he/she/it. Use "don\'t" with I/you/we/they.' },
+      { game_type: 'grammar-galaxy', text1: 'The cats is sleeping.', text2: 'Subject-Verb Agreement', answer: 'are', option1: 'is', option2: 'are', option3: 'was', option4: 'be', difficulty: 'Easy', know_more: 'Use "are" for plural subjects like "cats"!' },
+      { game_type: 'grammar-galaxy', text1: 'Him went to school.', text2: 'Pronoun', answer: 'He', option1: 'He', option2: 'Him', option3: 'His', option4: 'Her', difficulty: 'Easy', know_more: 'Use "He" as the subject of the sentence.' },
+      { game_type: 'grammar-galaxy', text1: 'I seen the movie yesterday.', text2: 'Verb Tense', answer: 'saw', option1: 'saw', option2: 'seen', option3: 'see', option4: 'seeing', difficulty: 'Easy', know_more: '"Seen" needs a helping verb. "Saw" is the simple past.' },
+      { game_type: 'grammar-galaxy', text1: 'They was happy.', text2: 'Subject-Verb', answer: 'were', option1: 'were', option2: 'was', option3: 'is', option4: 'be', difficulty: 'Easy', know_more: 'Use "were" with plural subjects like "They".' },
+
+      // Word Class Warp
+      { game_type: 'word-class-warp', text1: 'dog', answer: 'noun', difficulty: 'Easy', know_more: 'A noun is a person, place, thing, or animal!' },
+      { game_type: 'word-class-warp', text1: 'run', answer: 'verb', difficulty: 'Easy', know_more: 'A verb is an action word - something you DO!' },
+      { game_type: 'word-class-warp', text1: 'beautiful', answer: 'adjective', difficulty: 'Easy', know_more: 'Adjectives describe nouns - how things look, feel, or seem!' },
+      { game_type: 'word-class-warp', text1: 'quickly', answer: 'adverb', difficulty: 'Easy', know_more: 'Adverbs describe verbs - they tell HOW something is done!' },
+      { game_type: 'word-class-warp', text1: 'happiness', answer: 'noun', difficulty: 'Easy', know_more: 'Happiness is a feeling, which is a thing (noun)!' },
+
+      // Punctuation Pop
+      { game_type: 'punctuation-pop', text1: 'What time is it', answer: '?', difficulty: 'Easy', know_more: 'Questions always end with a question mark (?)!' },
+      { game_type: 'punctuation-pop', text1: 'I love ice cream', answer: '.', difficulty: 'Easy', know_more: 'Statements end with a period (.)!' },
+      { game_type: 'punctuation-pop', text1: 'Wow that is amazing', answer: '!', difficulty: 'Easy', know_more: 'Exclamations show strong feelings and end with (!)!' },
+      { game_type: 'punctuation-pop', text1: 'Where are you going', answer: '?', difficulty: 'Easy', know_more: 'Asking a question? Use a question mark!' },
+      { game_type: 'punctuation-pop', text1: 'Stop right there', answer: '!', difficulty: 'Easy', know_more: 'Commands usually end with an exclamation mark!' },
+
+      // Tense Traveler
+      { game_type: 'tense-traveler', text1: 'walk', text2: 'past', answer: 'walked', option1: 'walk', option2: 'walked', option3: 'walks', option4: 'will walk', difficulty: 'Easy', know_more: 'Add -ed to regular verbs for past tense!' },
+      { game_type: 'tense-traveler', text1: 'run', text2: 'past', answer: 'ran', option1: 'run', option2: 'ran', option3: 'runs', option4: 'will run', difficulty: 'Easy', know_more: '"Run" is irregular - past tense is "ran" not "runned"!' },
+      { game_type: 'tense-traveler', text1: 'walk', text2: 'future', answer: 'will walk', option1: 'walked', option2: 'walks', option3: 'will walk', option4: 'walking', difficulty: 'Easy', know_more: 'For future, we often use "will" before the verb.' },
+      { game_type: 'tense-traveler', text1: 'eat', text2: 'past', answer: 'ate', option1: 'eated', option2: 'ate', option3: 'eats', option4: 'eat', difficulty: 'Medium', know_more: '"Eat" is irregular. We say "ate" not "eated".' },
+      { game_type: 'tense-traveler', text1: 'sing', text2: 'past', answer: 'sang', option1: 'singed', option2: 'sang', option3: 'sung', option4: 'sing', difficulty: 'Medium', know_more: 'She "sang" a song yesterday.' },
+
+      // Synonym Stars
+      { game_type: 'synonym-stars', text1: 'happy', answer: 'joyful', option2: 'sad', option3: 'angry', option4: 'tired', difficulty: 'Easy', know_more: 'Synonyms are words with the same or similar meaning!' },
+      { game_type: 'synonym-stars', text1: 'big', answer: 'large', option2: 'small', option3: 'tiny', option4: 'short', difficulty: 'Easy', know_more: 'Big and large mean the same thing!' },
+      { game_type: 'synonym-stars', text1: 'fast', answer: 'quick', option2: 'slow', option3: 'lazy', option4: 'heavy', difficulty: 'Easy', know_more: 'Fast and quick both mean moving at high speed!' },
+      { game_type: 'synonym-stars', text1: 'smart', answer: 'intelligent', option2: 'dumb', option3: 'slow', option4: 'weak', difficulty: 'Easy', know_more: 'Smart and intelligent both mean clever.' },
+      { game_type: 'synonym-stars', text1: 'begin', answer: 'start', option2: 'end', option3: 'stop', option4: 'finish', difficulty: 'Medium', know_more: 'You can begin or start a race.' },
+
+      // Antonym Asteroids
+      { game_type: 'antonym-asteroids', text1: 'happy', answer: 'sad', option2: 'joyful', option3: 'glad', option4: 'pleased', difficulty: 'Easy', know_more: 'Antonyms are words with opposite meanings!' },
+      { game_type: 'antonym-asteroids', text1: 'big', answer: 'small', option2: 'large', option3: 'huge', option4: 'giant', difficulty: 'Easy', know_more: 'Big and small are opposites!' },
+      { game_type: 'antonym-asteroids', text1: 'fast', answer: 'slow', option2: 'quick', option3: 'rapid', option4: 'swift', difficulty: 'Easy', know_more: 'Fast is the opposite of slow.' },
+      { game_type: 'antonym-asteroids', text1: 'hot', answer: 'cold', option2: 'warm', option3: 'burning', option4: 'heated', difficulty: 'Easy', know_more: 'Hot vs Cold.' },
+      { game_type: 'antonym-asteroids', text1: 'old', answer: 'new', option2: 'ancient', option3: 'aged', option4: 'mature', difficulty: 'Medium', know_more: 'Something can be old or new.' },
+
+      // Story Nebula
+      { game_type: 'story-nebula', text1: 'The Lost Puppy', text2: 'Emma found a small puppy in the park. It was brown with white spots and looked hungry. She gave it her sandwich and the puppy wagged its tail.', answer: 'Where did Emma find the puppy?', option1: 'In the park', option2: 'At school', option3: 'At home', option4: 'In a store', difficulty: 'Easy', know_more: 'Look for clues in the story - it says "in the park"!' },
+      { game_type: 'story-nebula', text1: 'The Lost Puppy', text2: 'Emma found a small puppy in the park. It was brown with white spots and looked hungry. She gave it her sandwich and the puppy wagged its tail.', answer: 'What color was the puppy?', option1: 'Brown with white spots', option2: 'Black', option3: 'White', option4: 'Gray', difficulty: 'Easy', know_more: 'The story describes the puppy as brown with white spots.' },
+      { game_type: 'story-nebula', text1: 'The Lost Puppy', text2: 'Emma found a small puppy in the park. It was brown with white spots and looked hungry. She gave it her sandwich and the puppy wagged its tail.', answer: 'What did Emma give the puppy?', option1: 'Her sandwich', option2: 'Water', option3: 'A toy', option4: 'Nothing', difficulty: 'Easy', know_more: 'She shared her sandwich.' },
+
+      // Inference Investigator
+      { game_type: 'inference-investigator', text1: 'Maria grabbed her umbrella before leaving the house.', text2: 'What can you infer about the weather?', answer: 'It might rain', option1: 'It might rain', option2: 'Very hot', option3: 'Snowing', option4: 'Windy', difficulty: 'Easy', know_more: 'We use umbrellas when it rains - that\'s a clue!' },
+      { game_type: 'inference-investigator', text1: 'The boy\'s eyes grew wide when he opened the present.', text2: 'How did the boy feel?', answer: 'Surprised or excited', option1: 'Surprised or excited', option2: 'Disappointed', option3: 'Angry', option4: 'Bored', difficulty: 'Easy', know_more: 'Wide eyes usually show surprise or excitement!' },
+      { game_type: 'inference-investigator', text1: 'Sarah yawned and rubbed her eyes.', text2: 'What can you infer?', answer: 'She was tired', option1: 'She was tired', option2: 'She was hungry', option3: 'She was scared', option4: 'She was cold', difficulty: 'Easy', know_more: 'Yawning is a sign of being tired.' },
+      { game_type: 'inference-investigator', text1: 'The dog wagged its tail when Tom came home.', text2: 'How did the dog feel?', answer: 'Happy', option1: 'Happy', option2: 'Sad', option3: 'Angry', option4: 'Scared', difficulty: 'Easy', know_more: 'Tail wagging means a happy dog!' },
+    ];
+
+    const useSheetData = (url, gameType) => {
+      const [data, setData] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState(null);
+      useEffect(() => {
+        if (!url) { setLoading(false); return; }
+        setLoading(true);
+        fetch(url).then(res => res.text()).then(csv => {
+          const parsed = parseCSV(csv);
+          const filtered = gameType ? parsed.filter(row => row.game_type === gameType) : parsed;
+          setData(filtered); setLoading(false);
+        }).catch(err => {
+          // Use fallback data when fetch fails (e.g., file:// protocol CORS issue)
+          console.log('Using fallback data for:', gameType);
+          const isMath = ['space-math', 'alien-invasion', 'bubble-pop', 'planet-hopper', 'fraction-frenzy', 'time-warp', 'money-master', 'geometry-galaxy'].includes(gameType);
+          const fallback = isMath ? FALLBACK_MATH_DATA : FALLBACK_ENGLISH_DATA;
+          const filtered = fallback.filter(row => row.game_type === gameType);
+          setData(filtered); setLoading(false); setError(null);
+        });
+      }, [url, gameType]);
+      return { data, loading, error };
+    };
+
+    // ============ COMPONENTS ============
+    const StarIcon = ({ className = "w-5 h-5" }) => <svg className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>;
+    const DifficultyBadge = ({ difficulty }) => {
+      const colors = { Easy: 'bg-green-500', Medium: 'bg-yellow-500', Hard: 'bg-red-500' };
+      return <span className={`${colors[difficulty] || 'bg-gray-500'} text-white text-xs px-2 py-1 rounded-full font-bold`}>{difficulty}</span>;
+    };
+    const LoadingSpinner = () => <div className="flex flex-col items-center justify-center"><div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4"></div><p className="text-white">Loading questions...</p></div>;
+    const formatTime = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
+
+    const Header = ({ timer, streak, stars, onBack, difficulty }) => (
+      <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-20">
+        <div className="flex items-center gap-4">
+          <button onClick={onBack} className="w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 cursor-pointer">←</button>
+          <div className="flex items-center bg-gray-900/80 rounded-lg p-2 backdrop-blur">
+            <div><div className="text-xl font-bold text-white">{formatTime(timer)}</div><div className="text-xs text-blue-300">TIMER</div></div>
+            <div className="ml-3 border-l border-gray-600 pl-3"><div className="text-xl font-bold text-orange-400">{streak}</div><div className="text-xs text-orange-300">STREAK</div></div>
+            {difficulty && <div className="ml-3 border-l border-gray-600 pl-3"><DifficultyBadge difficulty={difficulty} /></div>}
+          </div>
+        </div>
+        <div className="flex items-center gap-2"><div className="bg-yellow-500 text-white px-3 py-1 rounded-l-full font-bold flex items-center gap-1"><StarIcon className="w-4 h-4" /></div><div className="bg-gray-200 text-gray-800 px-4 py-1 rounded-r-full font-bold min-w-16 text-center">{stars}</div></div>
+      </div>
+    );
+
+    const GameOverScreen = ({ stars, streak, onRestart, onBack, onSaveScore, playerName, setPlayerName, scoreSaved, questionsAnswered, totalQuestions, timeRemaining, allCompleted }) => (
+      <div className="text-center bg-gray-900/90 p-8 rounded-3xl backdrop-blur max-w-md mx-4 relative z-30 border-2 border-purple-500/50 shadow-2xl">
+        <h2 className="text-4xl font-bold text-white mb-2">{allCompleted ? '🎉 All Questions Done!' : 'Game Over!'}</h2>
+        {allCompleted && <p className="text-green-400 text-sm mb-3">+50 Completion Bonus! 🌟</p>}
+
+        <div className="grid grid-cols-3 gap-4 mb-6 bg-gray-800/50 rounded-xl p-4">
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-1 mb-1"><StarIcon className="w-6 h-6 text-yellow-400" /></div>
+            <div className="text-3xl font-bold text-yellow-400">{stars}</div>
+            <div className="text-xs text-gray-400">Stars</div>
+          </div>
+          <div className="text-center border-x border-gray-600">
+            <div className="text-2xl mb-1">🔥</div>
+            <div className="text-3xl font-bold text-orange-400">{streak}</div>
+            <div className="text-xs text-gray-400">Best Streak</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl mb-1">✅</div>
+            <div className="text-3xl font-bold text-green-400">{questionsAnswered}/{totalQuestions}</div>
+            <div className="text-xs text-gray-400">Answered</div>
+          </div>
+        </div>
+
+        {timeRemaining > 0 && <p className="text-blue-300 text-sm mb-4">⏱️ Time Remaining: {formatTime(timeRemaining)}</p>}
+
+        {!scoreSaved && (<div className="mb-6"><input type="text" placeholder="Enter your name" value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none w-full mb-2" maxLength={20} /><button onClick={onSaveScore} disabled={!playerName.trim()} className="bg-yellow-500 text-white px-4 py-3 rounded-lg font-bold hover:bg-yellow-400 disabled:opacity-50 w-full cursor-pointer">🏆 Save Score</button></div>)}
+        {scoreSaved && <p className="text-green-400 mb-6">✓ Score saved to leaderboard!</p>}
+        <div className="flex gap-4 justify-center"><button onClick={onBack} className="bg-gray-600 text-white px-6 py-3 rounded-full font-bold hover:bg-gray-500 cursor-pointer">🏠 HOME</button><button onClick={onRestart} className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform cursor-pointer">🔄 PLAY AGAIN</button></div>
+      </div>
+    );
+
+    const SpaceBackground = ({ children, variant = 'default' }) => {
+      const [bubbles] = useState(() => Array.from({ length: 30 }, (_, i) => ({ id: i, x: Math.random() * 100, y: Math.random() * 100, size: Math.random() * 3 + 1, duration: Math.random() * 3 + 2 })));
+      const gradients = { default: 'linear-gradient(180deg, #1a0a2e 0%, #2d1b4e 50%, #4a2c7a 100%)', english: 'linear-gradient(180deg, #0a1628 0%, #1e3a5f 50%, #2d5a87 100%)', grammar: 'linear-gradient(180deg, #1a1a2e 0%, #2e1f5e 50%, #4a3c7a 100%)', vocabulary: 'linear-gradient(180deg, #1a2a1a 0%, #2e4e2e 50%, #3a6a3a 100%)', comprehension: 'linear-gradient(180deg, #0a2020 0%, #1e4a4a 50%, #2d6a6a 100%)', math: 'linear-gradient(180deg, #1a0a2e 0%, #2d1b4e 50%, #4a2c7a 100%)' };
+      return (<div className="relative w-full h-screen overflow-hidden" style={{ background: gradients[variant] }}><div className="pointer-events-none absolute inset-0">{bubbles.map(b => <div key={b.id} className="absolute rounded-full bg-white opacity-60" style={{ left: `${b.x}%`, top: `${b.y}%`, width: b.size, height: b.size, animation: `twinkle ${b.duration}s ease-in-out infinite` }} />)}</div><div className="relative z-10 h-full">{children}</div></div>);
+    };
+
+    // ============ GAME CONFIGS ============
+    const MATH_GAMES = [
+      { id: 'space-math', title: 'Space Math', icon: '🚀', color: 'from-orange-500 to-yellow-500', difficulty: 'Easy', description: 'Solve equations!' },
+      { id: 'alien-invasion', title: 'Alien Invasion', icon: '👾', color: 'from-green-500 to-cyan-500', difficulty: 'Hard', description: 'Zap aliens!' },
+      { id: 'bubble-pop', title: 'Bubble Pop', icon: '🫧', color: 'from-cyan-500 to-blue-500', difficulty: 'Easy', description: 'Pop answers!' },
+      { id: 'planet-hopper', title: 'Planet Hopper', icon: '🪐', color: 'from-purple-500 to-pink-500', difficulty: 'Medium', description: 'Complete sequences!' },
+      { id: 'fraction-frenzy', title: 'Fraction Frenzy', icon: '🍕', color: 'from-amber-500 to-orange-500', difficulty: 'Medium', description: 'Master fractions!' },
+      { id: 'time-warp', title: 'Time Warp', icon: '⏰', color: 'from-blue-500 to-indigo-500', difficulty: 'Easy', description: 'Tell time!' },
+      { id: 'money-master', title: 'Money Master', icon: '💰', color: 'from-green-500 to-emerald-500', difficulty: 'Medium', description: 'Count money!' },
+      { id: 'geometry-galaxy', title: 'Geometry Galaxy', icon: '📐', color: 'from-pink-500 to-purple-500', difficulty: 'Medium', description: 'Learn shapes!' },
+    ];
+    const GRAMMAR_GAMES = [
+      { id: 'grammar-galaxy', title: 'Grammar Galaxy', icon: '🛸', color: 'from-purple-500 to-indigo-500', difficulty: 'Medium', description: 'Fix grammar!' },
+      { id: 'word-class-warp', title: 'Word Class Warp', icon: '🌟', color: 'from-pink-500 to-purple-500', difficulty: 'Easy', description: 'Sort words!' },
+      { id: 'punctuation-pop', title: 'Punctuation Pop', icon: '✨', color: 'from-pink-500 to-rose-500', difficulty: 'Easy', description: 'Add punctuation!' },
+      { id: 'tense-traveler', title: 'Tense Traveler', icon: '⏰', color: 'from-emerald-500 to-teal-500', difficulty: 'Medium', description: 'Verb tenses!' },
+    ];
+    const VOCABULARY_GAMES = [
+      { id: 'synonym-stars', title: 'Synonym Stars', icon: '⭐', color: 'from-yellow-500 to-orange-500', difficulty: 'Easy', description: 'Find synonyms!' },
+      { id: 'antonym-asteroids', title: 'Antonym Asteroids', icon: '☄️', color: 'from-red-500 to-orange-500', difficulty: 'Easy', description: 'Find opposites!' },
+    ];
+    const COMPREHENSION_GAMES = [
+      { id: 'story-nebula', title: 'Story Nebula', icon: '📖', color: 'from-indigo-500 to-purple-500', difficulty: 'Medium', description: 'Read stories!' },
+      { id: 'inference-investigator', title: 'Inference Investigator', icon: '🔍', color: 'from-violet-500 to-purple-500', difficulty: 'Hard', description: 'Make inferences!' },
+    ];
+    const ALL_GAMES = [...MATH_GAMES, ...GRAMMAR_GAMES, ...VOCABULARY_GAMES, ...COMPREHENSION_GAMES];
+
+    // ============ SHEET-BASED GAME (FULL) ============
+    const SheetBasedGame = ({ onBack, difficulty, onGameEnd, settings, gameId, title, icon, color, variant }) => {
+      const isMath = ['space-math', 'alien-invasion', 'bubble-pop', 'planet-hopper', 'fraction-frenzy', 'time-warp', 'money-master', 'geometry-galaxy'].includes(gameId);
+      const sheetUrl = isMath ? settings.mathSheetUrl : settings.englishSheetUrl;
+      const { data: allQuestions, loading, error } = useSheetData(sheetUrl, gameId);
+
+      const [stars, setStars] = useState(0);
+      const [timer, setTimer] = useState(difficulty === 'Hard' ? 30 : difficulty === 'Medium' ? 40 : 50);
+      const [gameActive, setGameActive] = useState(false);
+      const [gameOver, setGameOver] = useState(false);
+      const [currentQ, setCurrentQ] = useState(null);
+      const [streak, setStreak] = useState(0);
+      const [maxStreak, setMaxStreak] = useState(0);
+      const [feedback, setFeedback] = useState(null);
+      const [showKnowMore, setShowKnowMore] = useState(false);
+      const [playerName, setPlayerName] = useState('');
+      const [scoreSaved, setScoreSaved] = useState(false);
+      const [usedIndices, setUsedIndices] = useState(new Set());
+      const usedIndicesRef = React.useRef(new Set());
+      const [questionsAnswered, setQuestionsAnswered] = useState(0);
+
+      // Case-insensitive difficulty matching
+      const questions = allQuestions.filter(q => {
+        if (!q.difficulty) return true;
+        const qDiff = q.difficulty.toLowerCase().trim();
+        const targetDiff = difficulty.toLowerCase().trim();
+        return qDiff === targetDiff || targetDiff === 'all';
+      });
+
+      const getNextQuestion = useCallback(() => {
+        if (questions.length === 0) return null;
+        // Use ref to get the latest used indices
+        const currentUsed = usedIndicesRef.current;
+        let available = questions.filter((_, i) => !currentUsed.has(i));
+
+        // If all questions used, END THE GAME - don't loop
+        if (available.length === 0) {
+          return null; // Signal game completion
+        }
+
+        const idx = Math.floor(Math.random() * available.length);
+        const realIdx = questions.indexOf(available[idx]);
+
+        // Update both ref and state
+        usedIndicesRef.current.add(realIdx);
+        setUsedIndices(prev => new Set([...prev, realIdx]));
+
+        return available[idx];
+      }, [questions]);
+
+      const generateQuestion = useCallback(() => {
+        const q = getNextQuestion();
+        if (q) {
+          setCurrentQ(q);
+        } else {
+          // All questions completed - show game over
+          setGameActive(false);
+          setGameOver(true);
+        }
+      }, [getNextQuestion]);
+
+      useEffect(() => {
+        if (gameActive && timer > 0 && !showKnowMore) { const interval = setInterval(() => setTimer(t => t - 1), 1000); return () => clearInterval(interval); }
+        else if (timer === 0 && gameActive) { setGameActive(false); setGameOver(true); }
+      }, [gameActive, timer, showKnowMore]);
+
+      const startGame = () => { setStars(0); setTimer(difficulty === 'Hard' ? 30 : difficulty === 'Medium' ? 40 : 50); setStreak(0); setMaxStreak(0); usedIndicesRef.current = new Set(); setUsedIndices(new Set()); setGameActive(true); setGameOver(false); setScoreSaved(false); setPlayerName(''); setShowKnowMore(false); generateQuestion(); };
+
+      const handleAnswer = (selected, correct) => {
+        if (!gameActive || feedback || showKnowMore) return;
+        const isCorrect = selected === correct;
+        if (isCorrect) { const mult = difficulty === 'Hard' ? 2 : difficulty === 'Medium' ? 1.5 : 1; setStars(s => s + Math.floor((15 + streak * 3) * mult)); setStreak(s => { const n = s + 1; setMaxStreak(m => Math.max(m, n)); return n; }); setFeedback({ correct: true }); }
+        else { setStreak(0); setFeedback({ correct: false, answer: correct }); }
+        // Show know more instead of auto-advancing
+        setTimeout(() => { setShowKnowMore(true); }, 500);
+      };
+
+      const handleNext = () => {
+        setFeedback(null);
+        setShowKnowMore(false);
+        generateQuestion();
+      };
+
+      const handleSaveScore = async () => { if (!playerName.trim()) return; await onGameEnd(gameId, playerName, stars, maxStreak); setScoreSaved(true); };
+
+      // Render question based on game type
+      const renderQuestion = () => {
+        if (!currentQ) return <p className="text-white">No questions available</p>;
+        const options = [currentQ.option1, currentQ.option2, currentQ.option3, currentQ.option4].filter(Boolean);
+
+        // 🚀 Space Math - Rocket launch countdown style
+        if (gameId === 'space-math') {
+          return (
+            <div className="w-full max-w-lg">
+              <div className="relative bg-gradient-to-b from-gray-900 to-indigo-900 rounded-3xl p-8 mb-6 text-center border-2 border-orange-500/50 shadow-lg shadow-orange-500/20">
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-5xl" style={{ animation: feedback ? 'rocketLaunch 0.5s ease-out forwards' : 'float 2s ease-in-out infinite' }}>🚀</div>
+                <div className="pt-6 text-white text-5xl font-mono font-bold tracking-wider">{currentQ.num1} {currentQ.operation} {currentQ.num2}</div>
+                <div className="text-orange-400 text-2xl font-bold mt-2">= ?</div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 relative z-20">
+                {options.map((opt, i) => (
+                  <button key={i} onClick={() => handleAnswer(opt, currentQ.answer)}
+                    className={`p-5 rounded-2xl text-2xl font-bold transition-all cursor-pointer border-2 ${feedback ? (opt === currentQ.answer ? 'bg-green-500 border-green-400 text-white scale-110' : 'bg-gray-800 border-gray-700 text-gray-500')
+                      : 'bg-gradient-to-br from-orange-500 to-red-600 border-orange-400 text-white hover:scale-105 hover:shadow-lg hover:shadow-orange-500/30'
+                      }`}
+                  >{opt}</button>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+        // 👾 Alien Invasion - Hovering aliens to zap
+        if (gameId === 'alien-invasion') {
+          return (
+            <div className="w-full max-w-xl">
+              <div className="bg-gradient-to-b from-green-900/80 to-gray-900/80 rounded-2xl p-6 mb-6 text-center border border-green-500/30">
+                <div className="text-green-400 text-sm mb-2">⚡ ZAP THE CORRECT ANSWER ⚡</div>
+                <div className="text-white text-4xl font-bold">{currentQ.num1} {currentQ.operation} {currentQ.num2} = ?</div>
+              </div>
+              <div className="flex flex-wrap justify-center gap-6 relative z-20">
+                {options.map((opt, i) => (
+                  <button key={i} onClick={() => handleAnswer(opt, currentQ.answer)}
+                    className={`relative group cursor-pointer transition-all ${feedback && opt !== currentQ.answer ? 'opacity-30' : ''}`}
+                    style={{ animation: `alienFloat ${2 + i * 0.3}s ease-in-out infinite` }}
+                  >
+                    <div className={`text-6xl transition-transform ${feedback && opt === currentQ.answer ? 'scale-0' : 'group-hover:scale-110'}`}>👾</div>
+                    <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full font-bold text-lg ${feedback && opt === currentQ.answer ? 'bg-green-500 text-white' : 'bg-purple-600 text-white'
+                      }`}>{opt}</div>
+                    {feedback && opt === currentQ.answer && <div className="absolute inset-0 text-4xl">💥</div>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+        // 🫧 Bubble Pop - Floating animated bubbles
+        if (gameId === 'bubble-pop') {
+          return (
+            <div className="w-full max-w-xl">
+              <div className="bg-gradient-to-b from-cyan-900/80 to-blue-900/80 rounded-2xl p-6 mb-8 text-center">
+                <div className="text-cyan-300 text-sm mb-2">🫧 Pop the correct bubble! 🫧</div>
+                <div className="text-white text-4xl font-bold">{currentQ.num1} {currentQ.operation} {currentQ.num2} = ?</div>
+              </div>
+              <div className="flex flex-wrap justify-center gap-8 relative z-20">
+                {options.map((opt, i) => (
+                  <button key={i} onClick={() => handleAnswer(opt, currentQ.answer)}
+                    className={`relative w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold cursor-pointer transition-all ${feedback && opt === currentQ.answer ? 'scale-0 opacity-0' : 'hover:scale-110'
+                      } ${feedback && opt !== currentQ.answer ? 'opacity-30' : ''}`}
+                    style={{
+                      background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(135,206,235,0.6), rgba(100,180,255,0.4))',
+                      boxShadow: '0 8px 32px rgba(100,200,255,0.3), inset 0 -5px 20px rgba(255,255,255,0.2)',
+                      animation: `bubbleFloat ${3 + i * 0.5}s ease-in-out infinite`
+                    }}
+                  >
+                    <span className="text-blue-900 drop-shadow-md">{opt}</span>
+                    {feedback && opt === currentQ.answer && <div className="absolute inset-0 flex items-center justify-center text-3xl">💦</div>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+        // 🪐 Planet Hopper - Orbiting planets sequence
+        if (gameId === 'planet-hopper') {
+          const seqParts = currentQ.num1 ? currentQ.num1.split(' ') : [];
+          const planetEmojis = ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚪', '🟤'];
+          return (
+            <div className="w-full max-w-xl">
+              <div className="text-center mb-6">
+                <div className="text-purple-300 text-sm mb-4">🪐 Complete the sequence! 🪐</div>
+                <div className="flex justify-center gap-3 flex-wrap">
+                  {seqParts.map((part, i) => (
+                    <div key={i} className={`relative flex flex-col items-center`}>
+                      <div className={`w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold shadow-xl ${part === '?'
+                        ? 'bg-gradient-to-b from-gray-600 to-gray-800 border-4 border-dashed border-yellow-400 animate-pulse'
+                        : 'bg-gradient-to-b from-purple-400 via-purple-500 to-purple-700 border-4 border-purple-300'
+                        }`} style={{ animation: part !== '?' ? `float ${2 + i * 0.3}s ease-in-out infinite` : 'none' }}>
+                        <span className="text-white drop-shadow-lg">{part === '?' ? '❓' : part}</span>
+                      </div>
+                      {i < seqParts.length - 1 && <div className="text-purple-400 text-2xl mt-1">→</div>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-wrap justify-center gap-4 relative z-20">
+                {options.map((opt, i) => (
+                  <button key={i} onClick={() => handleAnswer(opt, currentQ.answer)}
+                    className={`w-20 h-20 rounded-full text-xl font-bold cursor-pointer transition-all ${feedback ? (opt === currentQ.answer ? 'ring-4 ring-green-400 scale-110' : 'opacity-30 scale-90') : 'hover:scale-110'
+                      }`}
+                    style={{
+                      background: `linear-gradient(135deg, ${['#ff6b6b', '#ffa502', '#2ed573', '#1e90ff'][i]} 0%, ${['#c23616', '#e17055', '#009432', '#0652DD'][i]} 100%)`,
+                      boxShadow: `0 8px 25px ${['rgba(255,107,107,0.4)', 'rgba(255,165,2,0.4)', 'rgba(46,213,115,0.4)', 'rgba(30,144,255,0.4)'][i]}`,
+                      animation: `float ${2.5 + i * 0.3}s ease-in-out infinite`
+                    }}
+                  >
+                    <span className="text-white drop-shadow-lg">{opt}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+        // Grammar
+        if (gameId === 'grammar-galaxy') {
+          const options = [currentQ.option1, currentQ.option2, currentQ.option3, currentQ.option4].filter(Boolean);
+          return (<div className="w-full max-w-lg"><div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur mb-6"><div className="text-xs text-purple-400 mb-2">{currentQ.text2}</div><div className="text-white text-2xl font-medium text-center">"{currentQ.text1}"</div></div><p className="text-purple-200 text-center mb-4">Choose the correct word:</p><div className="grid grid-cols-2 gap-3 relative z-20">{options.map((opt, i) => <button key={i} onClick={() => handleAnswer(opt, currentQ.answer)} className={`p-4 rounded-xl text-lg font-bold transition-all cursor-pointer ${feedback ? (opt === currentQ.answer ? 'bg-green-500 text-white' : 'bg-gray-700 text-gray-400') : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:scale-105'}`}>{opt}</button>)}</div></div>);
+        }
+
+        // Word class
+        if (gameId === 'word-class-warp') {
+          const categories = ['noun', 'verb', 'adjective', 'adverb'];
+          const icons = { noun: '📦', verb: '🏃', adjective: '🎨', adverb: '⚡' };
+          const colors_map = { noun: 'from-red-500 to-orange-500', verb: 'from-green-500 to-emerald-500', adjective: 'from-blue-500 to-purple-500', adverb: 'from-yellow-500 to-amber-500' };
+          return (<div className="w-full max-w-lg"><div className="bg-gray-900/80 rounded-2xl p-8 backdrop-blur mb-8 text-center"><div className="text-4xl font-bold text-white" style={{ animation: 'float 2s ease-in-out infinite' }}>{currentQ.text1}</div></div><div className="grid grid-cols-2 gap-4 relative z-20">{categories.map(cat => <button key={cat} onClick={() => handleAnswer(cat, currentQ.answer)} className={`p-6 rounded-2xl text-white font-bold text-lg transition-all hover:scale-105 cursor-pointer bg-gradient-to-br ${colors_map[cat]} ${feedback && cat === currentQ.answer ? 'ring-4 ring-green-400' : ''}`}><div className="text-3xl mb-2">{icons[cat]}</div>{cat.charAt(0).toUpperCase() + cat.slice(1)}</button>)}</div></div>);
+        }
+
+        // ✨ Punctuation Pop - Floating punctuation bubbles
+        if (gameId === 'punctuation-pop') {
+          const marks = ['.', '?', '!', ','];
+          const markColors = { '.': '#3b82f6', '?': '#8b5cf6', '!': '#ef4444', ',': '#22c55e' };
+          return (
+            <div className="w-full max-w-lg">
+              <div className="bg-gradient-to-b from-pink-900/80 to-purple-900/80 rounded-2xl p-6 mb-8 text-center border border-pink-500/30">
+                <div className="text-pink-300 text-sm mb-2">✨ Pop the correct punctuation! ✨</div>
+                <div className="text-white text-2xl font-medium">
+                  {currentQ.text1}<span className="text-yellow-400 text-3xl animate-pulse ml-1">_</span>
+                </div>
+              </div>
+              <div className="flex justify-center gap-6 relative z-20">
+                {marks.map((mark, i) => (
+                  <button key={mark} onClick={() => handleAnswer(mark, currentQ.answer)}
+                    className={`relative w-18 h-18 rounded-full text-4xl font-bold cursor-pointer transition-all ${feedback && mark === currentQ.answer ? 'scale-0 opacity-0' : 'hover:scale-110'
+                      } ${feedback && mark !== currentQ.answer ? 'opacity-30' : ''}`}
+                    style={{
+                      background: `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), ${markColors[mark]}, ${markColors[mark]}bb)`,
+                      boxShadow: `0 8px 25px ${markColors[mark]}66`,
+                      width: '72px', height: '72px',
+                      animation: `bubbleFloat ${2.5 + i * 0.4}s ease-in-out infinite`
+                    }}
+                  >
+                    <span className="drop-shadow-lg">{mark}</span>
+                    {feedback && mark === currentQ.answer && <div className="absolute inset-0 flex items-center justify-center text-3xl">💫</div>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+        // Tenses
+        if (gameId === 'tense-traveler') {
+          const options = [currentQ.option1, currentQ.option2, currentQ.option3, currentQ.option4].filter(Boolean);
+          const tenseColors = { past: 'from-amber-600 to-orange-700', present: 'from-green-500 to-emerald-600', future: 'from-blue-500 to-indigo-600' };
+          const tenseIcons = { past: '⏪', present: '▶️', future: '⏩' };
+          return (<div className="w-full max-w-lg"><div className={`bg-gradient-to-r ${tenseColors[currentQ.text2] || 'from-gray-500 to-gray-600'} rounded-2xl p-4 mb-4 text-center`}><div className="text-3xl mb-1">{tenseIcons[currentQ.text2] || '🕐'}</div><div className="text-white text-xl font-bold">{(currentQ.text2 || 'TENSE').toUpperCase()}</div></div><div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur mb-6 text-center"><div className="text-gray-400 text-sm mb-2">Convert this verb:</div><div className="text-white text-4xl font-bold">{currentQ.text1}</div></div><div className="grid grid-cols-2 gap-3 relative z-20">{options.map((opt, i) => <button key={i} onClick={() => handleAnswer(opt, currentQ.answer)} className={`p-4 rounded-xl text-lg font-bold transition-all cursor-pointer ${feedback ? (opt === currentQ.answer ? 'bg-green-500 text-white' : 'bg-gray-700 text-gray-400') : 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white hover:scale-105'}`}>{opt}</button>)}</div></div>);
+        }
+
+        // ⭐ Synonym Stars - Twinkling stars
+        if (gameId === 'synonym-stars') {
+          const shuffledOptions = [currentQ.answer, currentQ.option2, currentQ.option3, currentQ.option4].filter(Boolean).sort(() => Math.random() - 0.5);
+          return (
+            <div className="w-full max-w-lg">
+              <div className="bg-gradient-to-b from-indigo-900/80 to-purple-900/80 rounded-2xl p-6 mb-6 text-center border border-yellow-500/30">
+                <div className="text-yellow-300 text-sm mb-2">⭐ Find a word that means the SAME as: ⭐</div>
+                <div className="text-white text-4xl font-bold" style={{ animation: 'float 2s ease-in-out infinite' }}>{currentQ.text1}</div>
+              </div>
+              <div className="flex flex-wrap justify-center gap-4 relative z-20">
+                {shuffledOptions.map((opt, i) => (
+                  <button key={i} onClick={() => handleAnswer(opt, currentQ.answer)}
+                    className={`relative px-6 py-4 rounded-2xl text-lg font-bold cursor-pointer transition-all ${feedback ? (opt === currentQ.answer ? 'bg-green-500 scale-110' : 'opacity-30 scale-90') : 'hover:scale-105'
+                      }`}
+                    style={{
+                      background: feedback && opt === currentQ.answer ? undefined : 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)',
+                      boxShadow: '0 4px 20px rgba(251,191,36,0.4)',
+                      animation: `starTwinkle ${2 + i * 0.3}s ease-in-out infinite`
+                    }}
+                  >
+                    <span className="text-white drop-shadow-md">⭐ {opt}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+        // ☄️ Antonym Asteroids - Floating asteroids to blast
+        if (gameId === 'antonym-asteroids') {
+          const shuffledOptions = [currentQ.answer, currentQ.option2, currentQ.option3, currentQ.option4].filter(Boolean).sort(() => Math.random() - 0.5);
+          return (
+            <div className="w-full max-w-lg">
+              <div className="bg-gradient-to-b from-red-900/80 to-gray-900/80 rounded-2xl p-6 mb-6 text-center border border-red-500/30">
+                <div className="text-red-300 text-sm mb-2">☄️ Blast the OPPOSITE word! ☄️</div>
+                <div className="text-white text-4xl font-bold" style={{ animation: 'float 2s ease-in-out infinite' }}>{currentQ.text1}</div>
+              </div>
+              <div className="flex flex-wrap justify-center gap-4 relative z-20">
+                {shuffledOptions.map((opt, i) => (
+                  <button key={i} onClick={() => handleAnswer(opt, currentQ.answer)}
+                    className={`relative px-5 py-4 rounded-full text-lg font-bold cursor-pointer transition-all ${feedback ? (opt === currentQ.answer ? 'scale-0 opacity-0' : 'opacity-30') : 'hover:scale-110'
+                      }`}
+                    style={{
+                      background: 'linear-gradient(135deg, #6b7280 0%, #4b5563 50%, #374151 100%)',
+                      boxShadow: '0 8px 25px rgba(0,0,0,0.4), inset 0 2px 10px rgba(255,255,255,0.1)',
+                      animation: `asteroidMove ${4 + i * 0.5}s ease-in-out infinite`
+                    }}
+                  >
+                    <span className="text-white drop-shadow-md">☄️ {opt}</span>
+                    {feedback && opt === currentQ.answer && <div className="absolute inset-0 flex items-center justify-center text-4xl">💥</div>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+        // 📖 Story Nebula - Magical glowing book
+        if (gameId === 'story-nebula') {
+          return (
+            <div className="w-full max-w-2xl">
+              <div className="relative bg-gradient-to-b from-indigo-900/90 to-purple-900/90 rounded-3xl p-6 mb-6 border-2 border-amber-500/40" style={{ animation: 'bookGlow 3s ease-in-out infinite' }}>
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-4xl">📖</div>
+                <h3 className="text-amber-400 font-bold text-xl mb-3 pt-4 text-center">{currentQ.text1}</h3>
+                <div className="bg-amber-950/50 rounded-xl p-4 max-h-32 overflow-y-auto border border-amber-500/20">
+                  <p className="text-amber-100 text-sm leading-relaxed">{currentQ.text2}</p>
+                </div>
+              </div>
+              <div className="bg-teal-900/70 rounded-2xl p-4 mb-4 border border-teal-500/30">
+                <div className="text-teal-300 text-sm mb-1">❓ Question:</div>
+                <div className="text-white text-lg font-medium">{currentQ.answer}</div>
+              </div>
+              <div className="grid grid-cols-1 gap-3 relative z-20">
+                {options.map((opt, i) => (
+                  <button key={i} onClick={() => handleAnswer(opt, currentQ.option1)}
+                    className={`p-4 rounded-xl text-left font-medium transition-all cursor-pointer border-2 ${feedback ? (opt === currentQ.option1 ? 'bg-green-500 border-green-400 text-white' : 'bg-gray-800 border-gray-700 text-gray-500')
+                      : 'bg-gradient-to-r from-teal-700 to-cyan-700 border-teal-500/50 text-white hover:scale-102 hover:border-teal-400'
+                      }`}
+                    style={{ animation: feedback ? 'none' : `slideIn 0.3s ease-out ${i * 0.1}s both` }}
+                  >
+                    <span className="text-teal-300 mr-2">{['A', 'B', 'C', 'D'][i]}.</span> {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+        // 🔍 Inference Investigator - Detective magnifying glass
+        if (gameId === 'inference-investigator') {
+          return (
+            <div className="w-full max-w-lg">
+              <div className="relative bg-gradient-to-b from-violet-900/90 to-gray-900/90 rounded-3xl p-6 mb-6 border-2 border-violet-500/40">
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-5xl" style={{ animation: 'float 3s ease-in-out infinite' }}>🔍</div>
+                <div className="pt-6 bg-violet-950/50 rounded-xl p-4 border border-violet-500/20">
+                  <p className="text-violet-200 text-lg leading-relaxed text-center italic">"{currentQ.text1}"</p>
+                </div>
+              </div>
+              <div className="bg-gradient-to-r from-violet-800/60 to-purple-800/60 rounded-2xl p-4 mb-4 border border-violet-400/30">
+                <div className="text-violet-300 text-sm mb-1">🕵️ Detective's Question:</div>
+                <div className="text-white text-lg font-medium">{currentQ.text2}</div>
+              </div>
+              <div className="grid grid-cols-1 gap-3 relative z-20">
+                {options.map((opt, i) => (
+                  <button key={i} onClick={() => handleAnswer(opt, currentQ.answer)}
+                    className={`p-4 rounded-xl text-left font-medium transition-all cursor-pointer border-2 ${feedback ? (opt === currentQ.answer ? 'bg-green-500 border-green-400 text-white' : 'bg-gray-800 border-gray-700 text-gray-500')
+                      : 'bg-gradient-to-r from-violet-700 to-purple-700 border-violet-500/50 text-white hover:border-violet-400'
+                      }`}
+                  >
+                    <span className="text-violet-300 mr-2">🔎</span> {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+        // 🍕 Fraction Frenzy - Pizza slice visuals
+        if (gameId === 'fraction-frenzy') {
+          const parseFraction = (str) => {
+            if (!str) return { num: 1, den: 2 };
+            const parts = str.match(/(\d+)\/(\d+)/);
+            return parts ? { num: parseInt(parts[1]), den: parseInt(parts[2]) } : { num: 1, den: 2 };
+          };
+          return (
+            <div className="w-full max-w-lg">
+              <div className="bg-gradient-to-b from-amber-900/80 to-orange-900/80 rounded-3xl p-6 mb-6 text-center border border-amber-500/40">
+                <div className="text-amber-300 text-sm mb-3">🍕 Which fraction is bigger? 🍕</div>
+                <div className="flex justify-center items-center gap-8">
+                  {currentQ.num1.split(' vs ').map((frac, idx) => {
+                    const { num, den } = parseFraction(frac);
+                    return (
+                      <div key={idx} className="flex flex-col items-center">
+                        <svg viewBox="0 0 100 100" className="w-24 h-24">
+                          <circle cx="50" cy="50" r="45" fill="#fbbf24" stroke="#d97706" strokeWidth="3" />
+                          {[...Array(den)].map((_, i) => (
+                            <path key={i}
+                              d={`M50,50 L${50 + 45 * Math.cos((i * 360 / den - 90) * Math.PI / 180)},${50 + 45 * Math.sin((i * 360 / den - 90) * Math.PI / 180)} A45,45 0 0,1 ${50 + 45 * Math.cos(((i + 1) * 360 / den - 90) * Math.PI / 180)},${50 + 45 * Math.sin(((i + 1) * 360 / den - 90) * Math.PI / 180)} Z`}
+                              fill={i < num ? '#ea580c' : '#fcd34d'} stroke="#d97706" strokeWidth="1"
+                            />
+                          ))}
+                        </svg>
+                        <div className="text-white text-xl font-bold mt-2">{frac}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 relative z-20">
+                {options.map((opt, i) => (
+                  <button key={i} onClick={() => handleAnswer(opt, currentQ.answer)}
+                    className={`p-5 rounded-2xl text-xl font-bold transition-all cursor-pointer ${feedback ? (opt === currentQ.answer ? 'bg-green-500 text-white scale-105' : 'bg-gray-700 text-gray-400')
+                      : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:scale-105 shadow-lg shadow-orange-500/30'
+                      }`}
+                  >🍕 {opt}</button>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+        // Time
+        if (gameId === 'time-warp') {
+          const options = [currentQ.option1, currentQ.option2, currentQ.option3, currentQ.option4].filter(Boolean);
+          const hour = parseInt(currentQ.num1) || 3; const minute = parseInt(currentQ.num2) || 0;
+          return (<div className="w-full max-w-lg"><div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur mb-6 text-center"><div className="text-blue-400 text-sm mb-2">{currentQ.operation === 'read' ? 'Read the Clock' : 'Calculate Duration'}</div>{currentQ.operation === 'read' && <svg viewBox="0 0 100 100" className="w-32 h-32 mx-auto"><circle cx="50" cy="50" r="45" fill="#1f2937" stroke="#fbbf24" strokeWidth="3" />{[...Array(12)].map((_, i) => { const angle = (i * 30 - 90) * Math.PI / 180; return <text key={i} x={50 + 35 * Math.cos(angle)} y={50 + 35 * Math.sin(angle) + 4} fill="white" fontSize="10" textAnchor="middle">{i === 0 ? 12 : i}</text>; })}<line x1="50" y1="50" x2={50 + 20 * Math.cos(((hour % 12) * 30 + minute * 0.5 - 90) * Math.PI / 180)} y2={50 + 20 * Math.sin(((hour % 12) * 30 + minute * 0.5 - 90) * Math.PI / 180)} stroke="#ef4444" strokeWidth="4" strokeLinecap="round" /><line x1="50" y1="50" x2={50 + 30 * Math.cos((minute * 6 - 90) * Math.PI / 180)} y2={50 + 30 * Math.sin((minute * 6 - 90) * Math.PI / 180)} stroke="#3b82f6" strokeWidth="3" strokeLinecap="round" /></svg>}{currentQ.operation === 'duration' && <div className="text-white text-xl">From {currentQ.num1} to {currentQ.num2}</div>}</div><div className="grid grid-cols-2 gap-3 relative z-20">{options.map((opt, i) => <button key={i} onClick={() => handleAnswer(opt, currentQ.answer)} className={`p-4 rounded-xl text-lg font-bold transition-all cursor-pointer ${feedback ? (opt === currentQ.answer ? 'bg-green-500 text-white' : 'bg-gray-700 text-gray-400') : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:scale-105'}`}>{opt}</button>)}</div></div>);
+        }
+
+        // 💰 Money Master - Spinning coin visuals
+        if (gameId === 'money-master') {
+          const coinTypes = ['🪙', '💵', '💰', '🏦'];
+          return (
+            <div className="w-full max-w-lg">
+              <div className="bg-gradient-to-b from-green-900/80 to-emerald-900/80 rounded-3xl p-6 mb-6 text-center border border-green-500/40">
+                <div className="text-green-300 text-sm mb-3">💰 Count the Money! 💰</div>
+                <div className="flex justify-center gap-2 mb-4">
+                  {[...Array(Math.min(5, parseInt(currentQ.num1?.match(/\d+/)?.[0]) || 3))].map((_, i) => (
+                    <div key={i} className="text-4xl" style={{ animation: `coinSpin ${1.5 + i * 0.2}s ease-in-out infinite` }}>🪙</div>
+                  ))}
+                </div>
+                <div className="text-white text-3xl font-bold bg-green-950/50 rounded-xl p-4 border border-green-500/20">{currentQ.num1}</div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 relative z-20">
+                {options.map((opt, i) => (
+                  <button key={i} onClick={() => handleAnswer(opt, currentQ.answer)}
+                    className={`p-5 rounded-2xl text-xl font-bold transition-all cursor-pointer ${feedback ? (opt === currentQ.answer ? 'bg-green-500 text-white scale-105' : 'bg-gray-700 text-gray-400')
+                      : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:scale-105 shadow-lg shadow-green-500/30'
+                      }`}
+                  >💵 {opt}</button>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+        // 📐 Geometry Galaxy - Floating 3D shapes
+        if (gameId === 'geometry-galaxy') {
+          const shapeEmojis = {
+            triangle: '🔺', square: '🟦', circle: '🔵', rectangle: '🟩',
+            pentagon: '⬠', hexagon: '⬡', oval: '⭕', diamond: '🔷'
+          };
+          const shapeIcon = shapeEmojis[currentQ.text1?.toLowerCase()] || '📐';
+          return (
+            <div className="w-full max-w-lg">
+              <div className="bg-gradient-to-b from-pink-900/80 to-purple-900/80 rounded-3xl p-6 mb-6 text-center border border-pink-500/40">
+                <div className="text-pink-300 text-sm mb-3">📐 {currentQ.operation === 'identify' ? 'Name This Shape!' : 'Count the Sides!'} 📐</div>
+                <div className="flex justify-center gap-4 mb-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="text-5xl" style={{ animation: `float ${2 + i * 0.5}s ease-in-out infinite`, animationDelay: `${i * 0.3}s` }}>{shapeIcon}</div>
+                  ))}
+                </div>
+                {currentQ.operation === 'sides' && (
+                  <div className="text-white text-xl bg-pink-950/50 rounded-xl p-3 border border-pink-500/20">
+                    How many sides does a <span className="text-pink-300 font-bold">{currentQ.text1}</span> have?
+                  </div>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-4 relative z-20">
+                {options.map((opt, i) => (
+                  <button key={i} onClick={() => handleAnswer(opt, currentQ.answer)}
+                    className={`p-5 rounded-2xl text-lg font-bold transition-all cursor-pointer ${feedback ? (opt === currentQ.answer ? 'bg-green-500 text-white scale-105' : 'bg-gray-700 text-gray-400')
+                      : 'bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:scale-105 shadow-lg shadow-pink-500/30'
+                      }`}
+                  >{shapeEmojis[opt?.toLowerCase()] || '📐'} {opt}</button>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+        return <p className="text-white">Question type not supported</p>;
+      };
+
+      if (loading) return <SpaceBackground variant={variant}><div className="flex items-center justify-center h-full"><LoadingSpinner /></div></SpaceBackground>;
+      if (error) return <SpaceBackground variant={variant}><div className="flex flex-col items-center justify-center h-full"><p className="text-red-400 mb-4">Error loading questions. Make sure CSV files are in the same folder.</p><button onClick={onBack} className="bg-gray-600 text-white px-6 py-3 rounded-full cursor-pointer">Back</button></div></SpaceBackground>;
+
+      return (
+        <SpaceBackground variant={variant}>
+          <Header timer={timer} streak={streak} stars={stars} onBack={onBack} difficulty={difficulty} />
+          <div className="flex flex-col items-center justify-center h-full pt-20 px-4">
+            {!gameActive && !gameOver && (<div className="text-center"><h1 className="text-5xl font-bold text-white mb-2">{icon} {title}</h1><DifficultyBadge difficulty={difficulty} /><p className="text-gray-300 my-4">{questions.length} questions loaded</p><button onClick={startGame} disabled={questions.length === 0} className={`bg-gradient-to-r ${color} text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-transform shadow-lg cursor-pointer disabled:opacity-50`}>{questions.length > 0 ? 'START GAME' : 'No Questions Available'}</button></div>)}
+            {gameOver && <GameOverScreen stars={stars + (usedIndicesRef.current.size === questions.length && questions.length > 0 ? 50 : 0)} streak={maxStreak} onRestart={startGame} onBack={onBack} onSaveScore={handleSaveScore} playerName={playerName} setPlayerName={setPlayerName} scoreSaved={scoreSaved} questionsAnswered={usedIndicesRef.current.size} totalQuestions={questions.length} timeRemaining={timer} allCompleted={usedIndicesRef.current.size === questions.length && questions.length > 0} />}
+            {gameActive && renderQuestion()}
+            {feedback && <div className={`mt-4 text-center text-xl font-bold ${feedback.correct ? 'text-green-400' : 'text-red-400'}`}>{feedback.correct ? '✓ Correct!' : `✗ Answer: ${feedback.answer}`}</div>}
+            {showKnowMore && (
+              <div className="mt-4 text-center max-w-lg mx-auto">
+                {currentQ?.know_more && (
+                  <div className="bg-gradient-to-r from-blue-600/80 to-purple-600/80 rounded-xl p-4 mb-4 backdrop-blur">
+                    <div className="text-yellow-300 text-sm font-bold mb-1">💡 Know More:</div>
+                    <p className="text-white text-sm">{currentQ.know_more}</p>
+                  </div>
+                )}
+                <button onClick={handleNext} className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-3 rounded-full text-lg font-bold hover:scale-105 transition-transform shadow-lg cursor-pointer">
+                  NEXT →
+                </button>
+              </div>
+            )}
+          </div>
+        </SpaceBackground>
+      );
+    };
+
+    // ============ NAVIGATION ============
+    const DifficultySelector = ({ game, onSelect, onBack, settings }) => {
+      const gameInfo = ALL_GAMES.find(g => g.id === game);
+      const lockedDifficulty = settings?.defaultDifficulty && settings.defaultDifficulty !== 'None' ? settings.defaultDifficulty : null;
+
+      return (
+        <SpaceBackground>
+          <div className="flex flex-col items-center justify-center h-full px-4">
+            <button onClick={onBack} className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer">←</button>
+            <div className="text-6xl mb-4">{gameInfo?.icon}</div>
+            <h1 className="text-4xl font-bold text-white mb-4">{gameInfo?.title}</h1>
+            {lockedDifficulty && <p className="text-purple-300 mb-4 text-sm">Difficulty locked to {lockedDifficulty} in settings</p>}
+            <div className="flex flex-col gap-4 w-full max-w-xs relative z-20">
+              {['Easy', 'Medium', 'Hard'].map(diff => {
+                const isDisabled = lockedDifficulty && lockedDifficulty !== diff;
+                return (
+                  <button
+                    key={diff}
+                    onClick={() => !isDisabled && onSelect(diff)}
+                    disabled={isDisabled}
+                    className={`p-4 rounded-2xl text-left transition-all cursor-pointer ${isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:scale-105'
+                      } ${diff === 'Easy' ? 'bg-gradient-to-r from-green-500 to-green-600' : diff === 'Medium' ? 'bg-gradient-to-r from-yellow-500 to-orange-500' : 'bg-gradient-to-r from-red-500 to-red-600'}`}
+                  >
+                    <div className="text-xl font-bold text-white">{diff}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </SpaceBackground>
+      );
+    };
+
+    const GameTilesPage = ({ title, icon, games, onSelectGame, onBack, totalStars, variant }) => (<SpaceBackground variant={variant}><div className="flex flex-col items-center h-full px-4 py-8 overflow-y-auto"><button onClick={onBack} className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer">←</button><div className="text-center mb-8 pt-8"><h1 className="text-4xl font-bold text-white mb-2">{icon} {title}</h1><div className="flex items-center justify-center gap-2 mt-4 bg-gray-900/60 px-4 py-2 rounded-full"><StarIcon className="w-5 h-5 text-yellow-400" /><span className="text-yellow-400 font-bold">{totalStars} Stars</span></div></div><div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl w-full pb-8 relative z-20">{games.map((game, i) => <button key={game.id} onClick={() => onSelectGame(game.id)} className={`bg-gradient-to-br ${game.color} p-4 rounded-2xl shadow-xl text-left transition-all hover:scale-105 cursor-pointer`} style={{ animation: `slideIn 0.3s ease-out ${i * 0.05}s both` }}><div className="text-3xl mb-2">{game.icon}</div><h3 className="text-sm font-bold text-white mb-1">{game.title}</h3><p className="text-white/80 text-xs">{game.description}</p></button>)}</div></div></SpaceBackground>);
+
+    const EnglishLandingPage = ({ onSelectCategory, onBack, totalStars }) => (<SpaceBackground variant="english"><div className="flex flex-col items-center justify-center h-full px-4"><button onClick={onBack} className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer">←</button><h1 className="text-5xl font-bold text-white mb-8">📚 English Galaxy</h1><div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl w-full relative z-20">{[{ id: 'grammar', icon: '✏️', title: 'Grammar', color: 'from-purple-600 to-indigo-700', count: GRAMMAR_GAMES.length }, { id: 'vocabulary', icon: '📖', title: 'Vocabulary', color: 'from-green-600 to-emerald-700', count: VOCABULARY_GAMES.length }, { id: 'comprehension', icon: '🔍', title: 'Comprehension', color: 'from-teal-600 to-cyan-700', count: COMPREHENSION_GAMES.length }].map(cat => <button key={cat.id} onClick={() => onSelectCategory(cat.id)} className={`bg-gradient-to-br ${cat.color} p-6 rounded-3xl shadow-2xl hover:scale-105 transition-all text-left cursor-pointer`}><div className="text-5xl mb-3">{cat.icon}</div><h2 className="text-2xl font-bold text-white mb-1">{cat.title}</h2><p className="text-white/70 text-sm">{cat.count} games</p></button>)}</div></div></SpaceBackground>);
+
+    const MainLandingPage = ({ onSelectSubject, totalStars, onOpenLeaderboard, onOpenSettings, leaderboard = [] }) => {
+      const getGreeting = () => { const hour = new Date().getHours(); if (hour < 12) return { text: 'Good Morning', emoji: '🌅' }; if (hour < 17) return { text: 'Good Afternoon', emoji: '☀️' }; return { text: 'Good Evening', emoji: '🌙' }; };
+      const greeting = getGreeting(); const totalGames = leaderboard.length; const bestStreak = leaderboard.reduce((max, g) => Math.max(max, g.streak || 0), 0);
+      return (<SpaceBackground><button onClick={onOpenSettings} className="absolute top-4 right-4 w-12 h-12 rounded-full bg-gray-900/80 flex items-center justify-center text-2xl hover:bg-gray-700 z-30 cursor-pointer transition-all hover:scale-110">⚙️</button><div className="flex flex-col items-center justify-center min-h-full px-4 py-6 relative z-10"><div className="text-center mb-4"><div className="text-7xl mb-2" style={{ animation: 'float 2s ease-in-out infinite' }}>🤖</div><p className="text-lg text-purple-200">{greeting.emoji} {greeting.text}, Explorer!</p></div><h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-2 text-center"><span className="bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-500 bg-clip-text text-transparent drop-shadow-lg">Learning Galaxy</span></h1><p className="text-sm sm:text-base text-purple-300 mb-4">Fun learning for Grade 3-4! 🎮</p><div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6 relative z-20"><div className="flex items-center gap-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/50 px-3 py-2 rounded-full"><span className="text-xl">⭐</span><span className="text-yellow-300 font-bold text-sm sm:text-base">{totalStars}</span></div><div className="flex items-center gap-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/50 px-3 py-2 rounded-full"><span className="text-xl">🎮</span><span className="text-green-300 font-bold text-sm sm:text-base">{totalGames} played</span></div><div className="flex items-center gap-2 bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/50 px-3 py-2 rounded-full"><span className="text-xl">🔥</span><span className="text-orange-300 font-bold text-sm sm:text-base">{bestStreak} streak</span></div></div><div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-md sm:max-w-2xl relative z-20 mb-6"><button onClick={() => onSelectSubject('math')} className="bg-gradient-to-br from-purple-500 via-purple-600 to-indigo-700 p-6 sm:p-8 rounded-3xl shadow-2xl hover:scale-105 transition-all text-left cursor-pointer border-2 border-purple-400/30 group"><div className="flex items-center justify-between"><div><div className="text-5xl sm:text-6xl mb-2 group-hover:scale-110 transition-transform">🔢</div><h2 className="text-2xl sm:text-3xl font-bold text-white mb-1">Math</h2><p className="text-purple-200 text-sm">{MATH_GAMES.length} fun games!</p></div><div className="text-4xl opacity-50 group-hover:opacity-100 transition-opacity">→</div></div></button><button onClick={() => onSelectSubject('english')} className="bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-700 p-6 sm:p-8 rounded-3xl shadow-2xl hover:scale-105 transition-all text-left cursor-pointer border-2 border-blue-400/30 group"><div className="flex items-center justify-between"><div><div className="text-5xl sm:text-6xl mb-2 group-hover:scale-110 transition-transform">📚</div><h2 className="text-2xl sm:text-3xl font-bold text-white mb-1">English</h2><p className="text-blue-200 text-sm">{GRAMMAR_GAMES.length + VOCABULARY_GAMES.length + COMPREHENSION_GAMES.length} fun games!</p></div><div className="text-4xl opacity-50 group-hover:opacity-100 transition-opacity">→</div></div></button></div><button onClick={onOpenLeaderboard} className="flex items-center gap-3 bg-gradient-to-r from-amber-500 to-yellow-500 px-6 py-3 rounded-full font-bold text-white hover:scale-105 transition-all shadow-lg cursor-pointer"><span className="text-2xl">🏆</span><span>View Leaderboard</span></button></div></SpaceBackground>);
+    };
+
+    const Leaderboard = ({ onBack, leaderboard }) => {
+      const sorted = [...leaderboard].sort((a, b) => b.stars - a.stars).slice(0, 10);
+      return (<SpaceBackground><div className="flex flex-col items-center h-full pt-8 px-4 overflow-y-auto"><button onClick={onBack} className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer">←</button><h1 className="text-4xl font-bold text-white mb-6">🏆 Leaderboard</h1><div className="w-full max-w-md bg-gray-900/80 rounded-2xl p-4 backdrop-blur relative z-20">{sorted.length === 0 ? <p className="text-center text-gray-400 py-8">No scores yet! Play some games!</p> : <div className="space-y-2">{sorted.map((score, i) => { const gameInfo = ALL_GAMES.find(g => g.id === score.game); return <div key={i} className={`flex items-center gap-3 p-3 rounded-lg ${i === 0 ? 'bg-yellow-500/20' : 'bg-gray-800/50'}`}><div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${i === 0 ? 'bg-yellow-500 text-black' : 'bg-gray-700 text-white'}`}>{i + 1}</div><div className="flex-1"><div className="text-white font-bold">{score.name}</div><div className="text-gray-400 text-xs">{gameInfo?.title}</div></div><div className="flex items-center gap-1 text-yellow-400 font-bold"><StarIcon className="w-4 h-4" />{score.stars}</div></div>; })}</div>}</div></div></SpaceBackground>);
+    };
+
+    const SettingsPage = ({ settings, setSettings, onBack }) => {
+      const [localSettings, setLocalSettings] = useState(settings);
+      const [password, setPassword] = useState('');
+      const [isUnlocked, setIsUnlocked] = useState(false);
+      const [error, setError] = useState('');
+
+      const handleUnlock = () => {
+        if (password === SETTINGS_PASSWORD) {
+          setIsUnlocked(true);
+          setError('');
+        } else {
+          setError('Incorrect password');
+          setPassword('');
+        }
+      };
+
+      const handleSave = async () => {
+        setSettings(localSettings);
+        try { await storage.set('learning-galaxy-settings', JSON.stringify(localSettings)); } catch (e) { }
+        onBack();
+      };
+
+      if (!isUnlocked) {
+        return (
+          <SpaceBackground>
+            <div className="flex flex-col items-center justify-center h-full px-4">
+              <button onClick={onBack} className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer">←</button>
+              <div className="text-6xl mb-4">🔒</div>
+              <h1 className="text-3xl font-bold text-white mb-2">Settings Locked</h1>
+              <p className="text-purple-300 mb-6 text-sm">Enter password to access settings</p>
+              <div className="w-full max-w-xs relative z-20">
+                <input
+                  type="password"
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleUnlock()}
+                  className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none mb-3"
+                />
+                {error && <p className="text-red-400 text-sm mb-3 text-center">{error}</p>}
+                <button onClick={handleUnlock} className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform cursor-pointer">
+                  Unlock
+                </button>
+              </div>
+            </div>
+          </SpaceBackground>
+        );
+      }
+
+      return (
+        <SpaceBackground>
+          <div className="flex flex-col items-center h-full px-4 py-8 overflow-y-auto">
+            <button onClick={onBack} className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer">←</button>
+            <h1 className="text-4xl font-bold text-white mb-8 pt-8">⚙️ Settings</h1>
+            <div className="w-full max-w-lg space-y-6 relative z-20">
+              <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
+                <h2 className="text-xl font-bold text-white mb-2">🎯 Default Difficulty</h2>
+                <p className="text-gray-400 text-sm mb-4">Choose "None" to let kids pick difficulty each game</p>
+                <select
+                  value={localSettings.defaultDifficulty}
+                  onChange={(e) => setLocalSettings({ ...localSettings, defaultDifficulty: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white border border-gray-600 cursor-pointer"
+                >
+                  <option value="None">None (Choose per game)</option>
+                  <option value="Easy">Easy</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Hard">Hard</option>
+                </select>
+              </div>
+
+              <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
+                <h2 className="text-xl font-bold text-white mb-2">📄 Game Data Sources</h2>
+                <p className="text-gray-400 text-sm mb-4">Paste "Published to Web" CSV links here</p>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-purple-300 text-xs font-bold uppercase tracking-wider mb-1 block">Math Data URL</label>
+                    <input
+                      type="text"
+                      placeholder="./MATH_GOOGLE_SHEET_DATA.csv"
+                      value={localSettings.mathSheetUrl}
+                      onChange={(e) => setLocalSettings({ ...localSettings, mathSheetUrl: e.target.value })}
+                      className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-blue-300 text-xs font-bold uppercase tracking-wider mb-1 block">English Data URL</label>
+                    <input
+                      type="text"
+                      placeholder="./ENGLISH_GOOGLE_SHEET_DATA.csv"
+                      value={localSettings.englishSheetUrl}
+                      onChange={(e) => setLocalSettings({ ...localSettings, englishSheetUrl: e.target.value })}
+                      className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
+                <h2 className="text-xl font-bold text-white mb-2">📊 Leaderboard Integration</h2>
+                <p className="text-gray-400 text-sm mb-4">Paste Google Apps Script Web App URL to save scores online</p>
+                <input
+                  type="text"
+                  placeholder="https://script.google.com/macros/s/..."
+                  value={localSettings.leaderboardUrl || ''}
+                  onChange={(e) => setLocalSettings({ ...localSettings, leaderboardUrl: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none"
+                />
+              </div>
+              <button onClick={handleSave} className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-transform shadow-lg cursor-pointer">
+                💾 Save Settings
+              </button>
+            </div>
+          </div>
+        </SpaceBackground>
+      );
+    };
+
+    // ============ MAIN APP ============
+    const LearningGalaxy = () => {
+      const [currentSubject, setCurrentSubject] = useState(null);
+      const [englishCategory, setEnglishCategory] = useState(null);
+      const [currentGame, setCurrentGame] = useState(null);
+      const [selectedDifficulty, setSelectedDifficulty] = useState(null);
+      const [showLeaderboard, setShowLeaderboard] = useState(false);
+      const [showSettings, setShowSettings] = useState(false);
+      const [leaderboard, setLeaderboard] = useState([]);
+      const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+
+      useEffect(() => {
+        const loadData = async () => {
+          try { const lb = await storage.get('learning-galaxy-leaderboard'); if (lb?.value) setLeaderboard(JSON.parse(lb.value)); const st = await storage.get('learning-galaxy-settings'); if (st?.value) setSettings(JSON.parse(st.value)); } catch (e) { }
+        };
+        loadData();
+      }, []);
+
+      const DEFAULT_SETTINGS = {
+        mathSheetUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQr3nlml1JTPMR4ROfCKarFSayMFxYyOwZO-v_A0INlG1oMloM5wm0wltURipcy0A/pub?output=csv',
+        englishSheetUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRses_Y74IwZ6nFvmwMygKruq0HgQZZmOEYSdf3sE0pInXXByyU0uSf8KPY8Z6Giw/pub?output=csv',
+        defaultDifficulty: 'None',
+        leaderboardUrl: '' // URL from Google Apps Script deployment
+      };
+
+      // ... (rest of code) ...
+
+      const handleGameEnd = async (game, name, stars, streak) => {
+        const timestamp = new Date().toISOString();
+        const updated = [...leaderboard, { game, name, stars, streak, date: timestamp }];
+        setLeaderboard(updated);
+        try { await storage.set('learning-galaxy-leaderboard', JSON.stringify(updated)); } catch (e) { }
+
+        // Send to Google Sheet if URL is configured
+        if (settings.leaderboardUrl) {
+          try {
+            // Using 'no-cors' mode which is standard for posting to GAS Web Apps from client-side
+            // Note: response validation is limited in no-cors mode, but data will be sent
+            await fetch(settings.leaderboardUrl, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                name: name,
+                game: game,
+                difficulty: selectedDifficulty || 'Mixed',
+                stars: stars,
+                streak: streak,
+                questions_total: 10, // Approximate or pass actual total if available
+                date: timestamp
+              })
+            });
+            console.log('Score sent to Google Sheet');
+          } catch (err) {
+            console.error('Failed to send score to Google Sheet:', err);
+          }
+        }
+      };
+
+      const totalStars = leaderboard.reduce((sum, e) => sum + e.stars, 0);
+      const handleBackToHome = () => { setCurrentSubject(null); setEnglishCategory(null); setCurrentGame(null); setSelectedDifficulty(null); };
+
+      // Back from game returns to the gallery, not home
+      const handleBackFromGame = () => { setCurrentGame(null); setSelectedDifficulty(null); };
+
+      if (showSettings) return <SettingsPage settings={settings} setSettings={setSettings} onBack={() => setShowSettings(false)} />;
+      if (showLeaderboard) return <Leaderboard onBack={() => setShowLeaderboard(false)} leaderboard={leaderboard} />;
+
+      if (currentGame && selectedDifficulty) {
+        const gameInfo = ALL_GAMES.find(g => g.id === currentGame);
+        const variant = MATH_GAMES.find(g => g.id === currentGame) ? 'math' : englishCategory || 'english';
+        return <SheetBasedGame onBack={handleBackFromGame} difficulty={selectedDifficulty} onGameEnd={handleGameEnd} settings={settings} gameId={currentGame} title={gameInfo?.title} icon={gameInfo?.icon} color={gameInfo?.color} variant={variant} />;
+      }
+
+      if (currentGame) return <DifficultySelector game={currentGame} onSelect={setSelectedDifficulty} onBack={() => setCurrentGame(null)} settings={settings} />;
+      if (currentSubject === 'english' && englishCategory) {
+        const games = englishCategory === 'grammar' ? GRAMMAR_GAMES : englishCategory === 'vocabulary' ? VOCABULARY_GAMES : COMPREHENSION_GAMES;
+        return <GameTilesPage title={englishCategory.charAt(0).toUpperCase() + englishCategory.slice(1)} icon={englishCategory === 'grammar' ? '✏️' : englishCategory === 'vocabulary' ? '📖' : '🔍'} games={games} onSelectGame={setCurrentGame} onBack={() => setEnglishCategory(null)} totalStars={totalStars} variant={englishCategory} />;
+      }
+      if (currentSubject === 'english') return <EnglishLandingPage onSelectCategory={setEnglishCategory} onBack={handleBackToHome} totalStars={totalStars} />;
+      if (currentSubject === 'math') return <GameTilesPage title="Math Galaxy" icon="🔢" games={MATH_GAMES} onSelectGame={setCurrentGame} onBack={handleBackToHome} totalStars={totalStars} variant="math" />;
+
+      return <MainLandingPage onSelectSubject={setCurrentSubject} totalStars={totalStars} onOpenLeaderboard={() => setShowLeaderboard(true)} onOpenSettings={() => setShowSettings(true)} leaderboard={leaderboard} />;
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<LearningGalaxy />);
+  </script>
+</body>
+
+</html>
