@@ -53,12 +53,17 @@ const useSheetData = (url, gameType) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [retryTrigger, setRetryTrigger] = useState(0);
 
   useEffect(() => {
     if (!url) { setLoading(false); return; }
     setLoading(true);
+    setError(null);
     fetch(url)
-      .then(res => res.text())
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        return res.text();
+      })
       .then(csv => {
         const parsed = parseCSV(csv);
         const filtered = gameType ? parsed.filter(row => row.game_type === gameType) : parsed;
@@ -66,9 +71,11 @@ const useSheetData = (url, gameType) => {
         setLoading(false);
       })
       .catch(err => { setError(err.message); setLoading(false); });
-  }, [url, gameType]);
+  }, [url, gameType, retryTrigger]);
 
-  return { data, loading, error };
+  const retry = () => setRetryTrigger(prev => prev + 1);
+
+  return { data, loading, error, retry };
 };
 
 // ============ SHARED COMPONENTS ============
@@ -174,7 +181,7 @@ const formatTime = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(
 const SheetBasedGame = ({ onBack, difficulty, onGameEnd, settings, gameId, title, icon, color, variant, questionType }) => {
   const isMath = ['space-math', 'alien-invasion', 'bubble-pop', 'planet-hopper', 'fraction-frenzy', 'time-warp', 'money-master', 'geometry-galaxy'].includes(gameId);
   const sheetUrl = isMath ? settings.mathSheetUrl : settings.englishSheetUrl;
-  const { data: allQuestions, loading, error } = useSheetData(sheetUrl, gameId);
+  const { data: allQuestions, loading, error, retry } = useSheetData(sheetUrl, gameId);
 
   const [stars, setStars] = useState(0);
   const [timer, setTimer] = useState(difficulty === 'Hard' ? 30 : difficulty === 'Medium' ? 40 : 50);
@@ -587,7 +594,28 @@ const SheetBasedGame = ({ onBack, difficulty, onGameEnd, settings, gameId, title
   };
 
   if (loading) return <SpaceBackground variant={variant}><div className="flex items-center justify-center h-full"><LoadingSpinner /></div></SpaceBackground>;
-  if (error) return <SpaceBackground variant={variant}><div className="flex flex-col items-center justify-center h-full"><p className="text-red-400 mb-4">Error: {error}</p><button onClick={onBack} className="bg-gray-600 text-white px-6 py-3 rounded-full cursor-pointer">Back</button></div></SpaceBackground>;
+  if (error) return (
+    <SpaceBackground variant={variant}>
+      <div className="flex flex-col items-center justify-center h-full px-4">
+        <div className="bg-gray-900/80 rounded-2xl p-8 backdrop-blur max-w-md text-center">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-white mb-4">Connection Error</h2>
+          <p className="text-red-400 mb-2">{error}</p>
+          <p className="text-gray-300 text-sm mb-6">
+            Unable to load questions from Google Sheets. Check your internet connection or verify the Sheet URL in settings.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <button onClick={onBack} className="bg-gray-600 text-white px-6 py-3 rounded-full font-bold hover:bg-gray-500 transition-colors cursor-pointer">
+              ← Back
+            </button>
+            <button onClick={retry} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform cursor-pointer">
+              🔄 Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    </SpaceBackground>
+  );
 
   return (
     <SpaceBackground variant={variant}>
