@@ -961,6 +961,21 @@ const ALL_GAMES = [...MATH_GAMES, ...GRAMMAR_GAMES, ...VOCABULARY_GAMES, ...COMP
 const SettingsPage = ({ settings, setSettings, onBack }) => {
   const [localSettings, setLocalSettings] = useState(settings);
   const [urlErrors, setUrlErrors] = useState({ math: '', english: '' });
+  const [password, setPassword] = useState('');
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [error, setError] = useState('');
+
+  const SETTINGS_PASSWORD = 'Superdad';
+
+  const handleUnlock = () => {
+    if (password === SETTINGS_PASSWORD) {
+      setIsUnlocked(true);
+      setError('');
+    } else {
+      setError('Incorrect password');
+      setPassword('');
+    }
+  };
 
   const validateGoogleSheetUrl = (url) => {
     if (!url || !url.trim()) return 'URL is required';
@@ -1006,6 +1021,33 @@ const SettingsPage = ({ settings, setSettings, onBack }) => {
   };
 
   const isValid = !validateGoogleSheetUrl(localSettings.mathSheetUrl) && !validateGoogleSheetUrl(localSettings.englishSheetUrl);
+
+  if (!isUnlocked) {
+    return (
+      <SpaceBackground>
+        <div className="flex flex-col items-center justify-center h-full px-4">
+          <button onClick={onBack} className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer">←</button>
+          <div className="text-6xl mb-4">🔒</div>
+          <h1 className="text-3xl font-bold text-white mb-2">Settings Locked</h1>
+          <p className="text-purple-300 mb-6 text-sm">Enter password to access settings</p>
+          <div className="w-full max-w-xs relative z-20">
+            <input
+              type="password"
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleUnlock()}
+              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none mb-3"
+            />
+            {error && <p className="text-red-400 text-sm mb-3 text-center">{error}</p>}
+            <button onClick={handleUnlock} className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform cursor-pointer">
+              Unlock
+            </button>
+          </div>
+        </div>
+      </SpaceBackground>
+    );
+  }
 
   return (
     <SpaceBackground>
@@ -1117,7 +1159,7 @@ const EnglishLandingPage = ({ onSelectCategory, onBack, totalStars }) => (
   </SpaceBackground>
 );
 
-const MainLandingPage = ({ onSelectSubject, totalStars, onOpenLeaderboard, onOpenSettings, leaderboard = [] }) => {
+const MainLandingPage = ({ onSelectSubject, totalStars, onOpenLeaderboard, onOpenQA, onOpenSettings, leaderboard = [] }) => {
   // Time-based greeting
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -1213,12 +1255,19 @@ const MainLandingPage = ({ onSelectSubject, totalStars, onOpenLeaderboard, onOpe
           </button>
         </div>
 
-        {/* Leaderboard Button */}
-        <button onClick={onOpenLeaderboard}
-          className="flex items-center gap-3 bg-gradient-to-r from-amber-500 to-yellow-500 px-6 py-3 rounded-full font-bold text-white hover:scale-105 transition-all shadow-lg cursor-pointer">
-          <span className="text-2xl">🏆</span>
-          <span>View Leaderboard</span>
-        </button>
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3 relative z-20">
+          <button onClick={onOpenLeaderboard}
+            className="flex items-center gap-3 bg-gradient-to-r from-amber-500 to-yellow-500 px-6 py-3 rounded-full font-bold text-white hover:scale-105 transition-all shadow-lg cursor-pointer">
+            <span className="text-2xl">🏆</span>
+            <span>View Leaderboard</span>
+          </button>
+          <button onClick={onOpenQA}
+            className="flex items-center gap-3 bg-gradient-to-r from-cyan-500 to-blue-500 px-6 py-3 rounded-full font-bold text-white hover:scale-105 transition-all shadow-lg cursor-pointer">
+            <span className="text-2xl">📊</span>
+            <span>QA Analytics</span>
+          </button>
+        </div>
       </div>
     </SpaceBackground>
   );
@@ -1260,6 +1309,166 @@ const Leaderboard = ({ onBack, leaderboard }) => {
   );
 };
 
+// ============ QA ANALYTICS PAGE ============
+const QAPage = ({ onBack, leaderboard }) => {
+  // Calculate analytics
+  const totalGames = leaderboard.length;
+  const totalStars = leaderboard.reduce((sum, s) => sum + s.stars, 0);
+  const avgStars = totalGames > 0 ? Math.round(totalStars / totalGames) : 0;
+  const bestStreak = leaderboard.reduce((max, s) => Math.max(max, s.streak || 0), 0);
+
+  // Games played breakdown
+  const mathGames = leaderboard.filter(s => MATH_GAMES.find(g => g.id === s.game)).length;
+  const englishGames = leaderboard.filter(s => !MATH_GAMES.find(g => g.id === s.game)).length;
+
+  // Most played game
+  const gameCount = {};
+  leaderboard.forEach(s => {
+    gameCount[s.game] = (gameCount[s.game] || 0) + 1;
+  });
+  const mostPlayedGameId = Object.keys(gameCount).reduce((a, b) => gameCount[a] > gameCount[b] ? a : b, '');
+  const mostPlayedGame = ALL_GAMES.find(g => g.id === mostPlayedGameId);
+
+  // Top performers
+  const topPerformers = [...leaderboard]
+    .sort((a, b) => b.stars - a.stars)
+    .slice(0, 5)
+    .reduce((acc, curr) => {
+      if (!acc.find(p => p.name === curr.name)) {
+        acc.push(curr);
+      }
+      return acc;
+    }, []);
+
+  // Recent activity (last 10 games)
+  const recentGames = [...leaderboard]
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 10);
+
+  return (
+    <SpaceBackground variant="default">
+      <div className="flex flex-col items-center h-full pt-8 px-4 overflow-y-auto pb-8">
+        <button onClick={onBack} className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer">←</button>
+        <h1 className="text-4xl font-bold text-white mb-6">📊 QA Analytics</h1>
+
+        {totalGames === 0 ? (
+          <div className="bg-gray-900/80 rounded-2xl p-8 backdrop-blur text-center">
+            <div className="text-6xl mb-4">📈</div>
+            <p className="text-gray-400">No data yet! Play some games to see analytics.</p>
+          </div>
+        ) : (
+          <div className="w-full max-w-4xl space-y-6 relative z-20">
+            {/* Summary Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl p-4 text-center">
+                <div className="text-3xl font-bold text-white">{totalGames}</div>
+                <div className="text-purple-200 text-sm">Total Games</div>
+              </div>
+              <div className="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl p-4 text-center">
+                <div className="text-3xl font-bold text-white">{totalStars}</div>
+                <div className="text-yellow-100 text-sm">Total Stars</div>
+              </div>
+              <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-4 text-center">
+                <div className="text-3xl font-bold text-white">{avgStars}</div>
+                <div className="text-green-100 text-sm">Avg Stars</div>
+              </div>
+              <div className="bg-gradient-to-br from-red-500 to-orange-600 rounded-2xl p-4 text-center">
+                <div className="text-3xl font-bold text-white">{bestStreak}</div>
+                <div className="text-red-100 text-sm">Best Streak</div>
+              </div>
+            </div>
+
+            {/* Subject Breakdown */}
+            <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
+              <h2 className="text-2xl font-bold text-white mb-4">📚 Subject Breakdown</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-purple-500/20 rounded-xl p-4 border border-purple-500/50">
+                  <div className="text-4xl mb-2">🔢</div>
+                  <div className="text-2xl font-bold text-white">{mathGames}</div>
+                  <div className="text-purple-200 text-sm">Math Games</div>
+                </div>
+                <div className="bg-blue-500/20 rounded-xl p-4 border border-blue-500/50">
+                  <div className="text-4xl mb-2">📚</div>
+                  <div className="text-2xl font-bold text-white">{englishGames}</div>
+                  <div className="text-blue-200 text-sm">English Games</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Most Played Game */}
+            {mostPlayedGame && (
+              <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
+                <h2 className="text-2xl font-bold text-white mb-4">🎮 Most Played Game</h2>
+                <div className={`bg-gradient-to-br ${mostPlayedGame.color} rounded-xl p-6`}>
+                  <div className="flex items-center gap-4">
+                    <div className="text-5xl">{mostPlayedGame.icon}</div>
+                    <div>
+                      <div className="text-2xl font-bold text-white">{mostPlayedGame.title}</div>
+                      <div className="text-white/80 text-sm">Played {gameCount[mostPlayedGameId]} times</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Top Performers */}
+            {topPerformers.length > 0 && (
+              <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
+                <h2 className="text-2xl font-bold text-white mb-4">🌟 Top Performers</h2>
+                <div className="space-y-2">
+                  {topPerformers.map((player, i) => {
+                    const gameInfo = ALL_GAMES.find(g => g.id === player.game);
+                    return (
+                      <div key={i} className={`flex items-center gap-3 p-3 rounded-lg ${i === 0 ? 'bg-yellow-500/20 border border-yellow-500/50' : 'bg-gray-800/50'}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${i === 0 ? 'bg-yellow-500 text-black' : 'bg-gray-700 text-white'}`}>
+                          {i + 1}
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-white font-bold">{player.name}</div>
+                          <div className="text-gray-400 text-xs">{gameInfo?.title}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="flex items-center gap-1 text-yellow-400 font-bold">
+                            <StarIcon className="w-4 h-4" />{player.stars}
+                          </div>
+                          <div className="text-orange-400 text-xs">🔥 {player.streak} streak</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Recent Activity */}
+            <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
+              <h2 className="text-2xl font-bold text-white mb-4">⏱️ Recent Activity</h2>
+              <div className="space-y-2">
+                {recentGames.map((game, i) => {
+                  const gameInfo = ALL_GAMES.find(g => g.id === game.game);
+                  const timeAgo = new Date(game.date).toLocaleDateString();
+                  return (
+                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-gray-800/50">
+                      <div className="text-2xl">{gameInfo?.icon || '🎮'}</div>
+                      <div className="flex-1">
+                        <div className="text-white font-medium">{game.name}</div>
+                        <div className="text-gray-400 text-xs">{gameInfo?.title} • {timeAgo}</div>
+                      </div>
+                      <div className="flex items-center gap-1 text-yellow-400 font-bold">
+                        <StarIcon className="w-4 h-4" />{game.stars}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </SpaceBackground>
+  );
+};
+
 // ============ MAIN APP ============
 const LearningGalaxy = () => {
   const [currentSubject, setCurrentSubject] = useState(null);
@@ -1267,6 +1476,7 @@ const LearningGalaxy = () => {
   const [currentGame, setCurrentGame] = useState(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showQA, setShowQA] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
@@ -1294,6 +1504,7 @@ const LearningGalaxy = () => {
 
   if (showSettings) return <SettingsPage settings={settings} setSettings={setSettings} onBack={() => setShowSettings(false)} />;
   if (showLeaderboard) return <Leaderboard onBack={() => setShowLeaderboard(false)} leaderboard={leaderboard} />;
+  if (showQA) return <QAPage onBack={() => setShowQA(false)} leaderboard={leaderboard} />;
 
   if (currentGame && selectedDifficulty) {
     const gameInfo = ALL_GAMES.find(g => g.id === currentGame);
@@ -1309,7 +1520,7 @@ const LearningGalaxy = () => {
   if (currentSubject === 'english') return <EnglishLandingPage onSelectCategory={setEnglishCategory} onBack={handleBackToHome} totalStars={totalStars} />;
   if (currentSubject === 'math') return <GameTilesPage title="Math Galaxy" icon="🔢" games={MATH_GAMES} onSelectGame={setCurrentGame} onBack={handleBackToHome} totalStars={totalStars} variant="math" />;
 
-  return <MainLandingPage onSelectSubject={setCurrentSubject} totalStars={totalStars} onOpenLeaderboard={() => setShowLeaderboard(true)} onOpenSettings={() => setShowSettings(true)} leaderboard={leaderboard} />;
+  return <MainLandingPage onSelectSubject={setCurrentSubject} totalStars={totalStars} onOpenLeaderboard={() => setShowLeaderboard(true)} onOpenQA={() => setShowQA(true)} onOpenSettings={() => setShowSettings(true)} leaderboard={leaderboard} />;
 };
 
 export default LearningGalaxy;
