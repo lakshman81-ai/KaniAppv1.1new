@@ -27,25 +27,118 @@ const DEFAULT_SETTINGS = {
   soundEnabled: true
 };
 
-// ============ CSV PARSER ============
+// ============ ROBUST CSV PARSER (RFC 4180 compliant) ============
 const parseCSV = (csv) => {
-  const lines = csv.split('\n').filter(line => line.trim());
-  if (lines.length < 2) return [];
-  const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/['"]/g, ''));
-  return lines.slice(1).map(line => {
+  if (!csv || typeof csv !== 'string') return [];
+
+  // Parse a single CSV row with proper quote handling
+  const parseRow = (row) => {
     const values = [];
     let current = '';
     let inQuotes = false;
-    for (let char of line) {
-      if (char === '"') inQuotes = !inQuotes;
-      else if (char === ',' && !inQuotes) { values.push(current.trim()); current = ''; }
-      else current += char;
+    let i = 0;
+
+    while (i < row.length) {
+      const char = row[i];
+      const nextChar = row[i + 1];
+
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          // Escaped quote (doubled quotes within quoted field)
+          current += '"';
+          i += 2; // Skip both quotes
+          continue;
+        } else {
+          // Toggle quote state
+          inQuotes = !inQuotes;
+        }
+      } else if (char === ',' && !inQuotes) {
+        // End of field
+        values.push(cleanValue(current));
+        current = '';
+      } else {
+        // Regular character
+        current += char;
+      }
+      i++;
     }
-    values.push(current.trim());
-    const obj = {};
-    headers.forEach((h, i) => { obj[h] = values[i] || ''; });
-    return obj;
-  });
+
+    // Push the last value
+    values.push(cleanValue(current));
+    return values;
+  };
+
+  // Clean and trim a CSV value
+  const cleanValue = (value) => {
+    // Trim whitespace
+    value = value.trim();
+
+    // Remove surrounding quotes if present
+    if (value.startsWith('"') && value.endsWith('"')) {
+      value = value.slice(1, -1);
+    }
+
+    return value;
+  };
+
+  try {
+    // Split into lines, but handle newlines within quoted fields
+    const rows = [];
+    let currentRow = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < csv.length; i++) {
+      const char = csv[i];
+      const nextChar = csv[i + 1];
+
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          currentRow += '""';
+          i++; // Skip next quote
+        } else {
+          inQuotes = !inQuotes;
+          currentRow += char;
+        }
+      } else if ((char === '\n' || char === '\r') && !inQuotes) {
+        // End of row (only if not inside quotes)
+        if (currentRow.trim()) {
+          rows.push(currentRow);
+        }
+        currentRow = '';
+        // Handle \r\n
+        if (char === '\r' && nextChar === '\n') i++;
+      } else {
+        currentRow += char;
+      }
+    }
+
+    // Don't forget last row
+    if (currentRow.trim()) {
+      rows.push(currentRow);
+    }
+
+    if (rows.length < 2) return [];
+
+    // Parse header row
+    const headers = parseRow(rows[0]).map(h => h.toLowerCase());
+
+    // Parse data rows
+    return rows.slice(1).map(row => {
+      const values = parseRow(row);
+      const obj = {};
+      headers.forEach((h, i) => {
+        obj[h] = values[i] || '';
+      });
+      return obj;
+    }).filter(obj => {
+      // Filter out empty rows
+      return Object.values(obj).some(v => v.trim());
+    });
+
+  } catch (e) {
+    console.error('CSV parsing error:', e);
+    return [];
+  }
 };
 
 // ============ DATA FETCHING HOOK WITH CACHE ============
