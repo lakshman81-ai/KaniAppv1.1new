@@ -1717,7 +1717,19 @@ const LearningGalaxy = () => {
         const lb = await storage.get('learning-galaxy-leaderboard');
         if (lb?.value) setLeaderboard(JSON.parse(lb.value));
         const st = await storage.get('learning-galaxy-settings');
-        if (st?.value) setSettings(JSON.parse(st.value));
+        if (st?.value) {
+          const loadedSettings = JSON.parse(st.value);
+          // Migrate old settings: if settingsSheetUrl doesn't exist, add it
+          const migratedSettings = {
+            ...DEFAULT_SETTINGS,
+            ...loadedSettings,
+            // Force migration: if defaultDifficulty is missing the new field, ensure it exists
+            settingsSheetUrl: loadedSettings.settingsSheetUrl || ''
+          };
+          setSettings(migratedSettings);
+          // Save migrated settings back to storage
+          await storage.set('learning-galaxy-settings', JSON.stringify(migratedSettings));
+        }
       } catch (e) { }
     };
     loadData();
