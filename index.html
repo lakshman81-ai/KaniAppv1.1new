@@ -21,6 +21,30 @@
     #root {
       height: 100%;
       width: 100%;
+      overflow-x: hidden;
+    }
+
+    /* Android Chrome fixes */
+    body {
+      -webkit-overflow-scrolling: touch;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    input,
+    textarea {
+      -webkit-user-select: text;
+      user-select: text;
     }
 
     @keyframes twinkle {
@@ -1198,8 +1222,8 @@ const SettingsPage = ({ settings, setSettings, onBack }) => {
   if (!isUnlocked) {
     return (
       <SpaceBackground>
-        <div className="flex flex-col items-center justify-center h-full px-4">
-          <button onClick={onBack} className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer">←</button>
+        <div className="flex flex-col items-center justify-center min-h-screen px-4" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <button onClick={onBack} className="fixed top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer" style={{ WebkitTapHighlightColor: 'transparent' }}>←</button>
           <div className="text-6xl mb-4">🔒</div>
           <h1 className="text-3xl font-bold text-white mb-2">Settings Locked</h1>
           <p className="text-purple-300 mb-6 text-sm">Enter password to access settings</p>
@@ -1224,8 +1248,8 @@ const SettingsPage = ({ settings, setSettings, onBack }) => {
 
   return (
     <SpaceBackground>
-      <div className="flex flex-col items-center h-full px-4 py-8 overflow-y-auto">
-        <button onClick={onBack} className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer">←</button>
+      <div className="flex flex-col items-center min-h-screen px-4 py-8 overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch', overflowY: 'auto' }}>
+        <button onClick={onBack} className="fixed top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer" style={{ WebkitTapHighlightColor: 'transparent' }}>←</button>
         <h1 className="text-4xl font-bold text-white mb-8 pt-8">⚙️ Settings</h1>
         <div className="w-full max-w-lg space-y-6 relative z-20">
           <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
@@ -1286,8 +1310,8 @@ const DifficultySelector = ({ game, onSelect, onBack }) => {
 
 const GameTilesPage = ({ title, icon, games, onSelectGame, onBack, totalStars, variant }) => (
   <SpaceBackground variant={variant}>
-    <div className="flex flex-col items-center h-full px-4 py-8 overflow-y-auto">
-      <button onClick={onBack} className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer">←</button>
+    <div className="flex flex-col items-center min-h-screen px-4 py-8 overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch', overflowY: 'auto' }}>
+      <button onClick={onBack} className="fixed top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer" style={{ WebkitTapHighlightColor: 'transparent' }}>←</button>
       <div className="text-center mb-8 pt-8">
         <h1 className="text-4xl font-bold text-white mb-2">{icon} {title}</h1>
         <div className="flex items-center justify-center gap-2 mt-4 bg-gray-900/60 px-4 py-2 rounded-full">
@@ -1453,8 +1477,8 @@ const Leaderboard = ({ onBack, leaderboard }) => {
 
   return (
     <SpaceBackground>
-      <div className="flex flex-col items-center h-full pt-8 px-4 overflow-y-auto">
-        <button onClick={onBack} className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer">←</button>
+      <div className="flex flex-col items-center min-h-screen pt-8 px-4 overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch', overflowY: 'auto' }}>
+        <button onClick={onBack} className="fixed top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer" style={{ WebkitTapHighlightColor: 'transparent' }}>←</button>
         <h1 className="text-4xl font-bold text-white mb-6">🏆 Leaderboard</h1>
         <div className="flex gap-2 mb-6 relative z-20">
           {['all', 'math', 'english'].map(f => (
@@ -1520,8 +1544,8 @@ const QAPage = ({ onBack, leaderboard }) => {
 
   return (
     <SpaceBackground variant="default">
-      <div className="flex flex-col items-center h-full pt-8 px-4 overflow-y-auto pb-8">
-        <button onClick={onBack} className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer">←</button>
+      <div className="flex flex-col items-center min-h-screen pt-8 px-4 overflow-y-auto pb-8" style={{ WebkitOverflowScrolling: 'touch', overflowY: 'auto' }}>
+        <button onClick={onBack} className="fixed top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer" style={{ WebkitTapHighlightColor: 'transparent' }}>←</button>
         <h1 className="text-4xl font-bold text-white mb-6">📊 QA Analytics</h1>
 
         {totalGames === 0 ? (
