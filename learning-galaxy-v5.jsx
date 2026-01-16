@@ -23,8 +23,9 @@ const DEFAULT_SETTINGS = {
   englishSheetUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRses_Y74IwZ6nFvmwMygKruq0HgQZZmOEYSdf3sE0pInXXByyU0uSf8KPY8Z6Giw/pub?output=csv',
   selectedMathWorksheet: '1',
   selectedEnglishWorksheet: '1',
-  defaultDifficulty: 'Easy',
-  soundEnabled: true
+  defaultDifficulty: 'None',
+  soundEnabled: true,
+  settingsSheetUrl: ''
 };
 
 // ============ ROBUST CSV PARSER (RFC 4180 compliant) ============
@@ -997,6 +998,29 @@ const SettingsPage = ({ settings, setSettings, onBack }) => {
 
     setSettings(localSettings);
     try { await storage.set('learning-galaxy-settings', JSON.stringify(localSettings)); } catch (e) { }
+
+    // Save to Google Sheets if URL is provided
+    if (localSettings.settingsSheetUrl && localSettings.settingsSheetUrl.trim()) {
+      try {
+        const settingsData = {
+          timestamp: new Date().toISOString(),
+          mathSheetUrl: localSettings.mathSheetUrl,
+          englishSheetUrl: localSettings.englishSheetUrl,
+          defaultDifficulty: localSettings.defaultDifficulty,
+          soundEnabled: localSettings.soundEnabled
+        };
+
+        await fetch(localSettings.settingsSheetUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(settingsData)
+        });
+      } catch (e) {
+        console.error('Failed to save settings to Google Sheets:', e);
+      }
+    }
+
     onBack();
   };
 
@@ -1029,10 +1053,19 @@ const SettingsPage = ({ settings, setSettings, onBack }) => {
             <h2 className="text-xl font-bold text-white mb-4">🎯 Default Difficulty</h2>
             <select value={localSettings.defaultDifficulty} onChange={(e) => setLocalSettings({ ...localSettings, defaultDifficulty: e.target.value })}
               className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white border border-gray-600 cursor-pointer">
+              <option value="None">None (Let me choose each time)</option>
               <option value="Easy">Easy</option>
               <option value="Medium">Medium</option>
               <option value="Hard">Hard</option>
             </select>
+            <p className="text-gray-400 text-xs mt-2">When "None" is selected, you can choose difficulty before each game. Otherwise, only the selected difficulty will be available.</p>
+          </div>
+          <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
+            <h2 className="text-xl font-bold text-white mb-4">📊 Settings Sync Sheet (Optional)</h2>
+            <textarea value={localSettings.settingsSheetUrl} onChange={(e) => setLocalSettings({ ...localSettings, settingsSheetUrl: e.target.value })}
+              placeholder="Enter Google Apps Script Web App URL to save settings..."
+              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none text-xs font-mono resize-none" rows={2} />
+            <p className="text-gray-400 text-xs mt-2">Settings will be automatically saved to this Google Sheet when you click Save.</p>
           </div>
           <div className="flex gap-3">
             <button onClick={handleReset} className="flex-1 bg-gray-600 text-white px-6 py-4 rounded-full text-lg font-bold hover:bg-gray-500 transition-colors cursor-pointer">🔄 Reset</button>
@@ -1299,6 +1332,14 @@ const LearningGalaxy = () => {
     const gameInfo = ALL_GAMES.find(g => g.id === currentGame);
     const variant = MATH_GAMES.find(g => g.id === currentGame) ? 'math' : GRAMMAR_GAMES.find(g => g.id === currentGame) ? 'grammar' : VOCABULARY_GAMES.find(g => g.id === currentGame) ? 'vocabulary' : 'comprehension';
     return <SheetBasedGame onBack={handleBackToHome} difficulty={selectedDifficulty} onGameEnd={handleGameEnd} settings={settings} gameId={currentGame} title={gameInfo?.title} icon={gameInfo?.icon} color={gameInfo?.color} variant={variant} />;
+  }
+
+  // Check if default difficulty is set (not "None")
+  if (currentGame && settings.defaultDifficulty !== 'None') {
+    // Auto-select the default difficulty and go directly to game
+    const gameInfo = ALL_GAMES.find(g => g.id === currentGame);
+    const variant = MATH_GAMES.find(g => g.id === currentGame) ? 'math' : GRAMMAR_GAMES.find(g => g.id === currentGame) ? 'grammar' : VOCABULARY_GAMES.find(g => g.id === currentGame) ? 'vocabulary' : 'comprehension';
+    return <SheetBasedGame onBack={handleBackToHome} difficulty={settings.defaultDifficulty} onGameEnd={handleGameEnd} settings={settings} gameId={currentGame} title={gameInfo?.title} icon={gameInfo?.icon} color={gameInfo?.color} variant={variant} />;
   }
 
   if (currentGame) return <DifficultySelector game={currentGame} onSelect={setSelectedDifficulty} onBack={() => setCurrentGame(null)} />;

@@ -116,3 +116,75 @@ inference-investigator,The bird built a nest and gathered twigs.,What is the bir
 inference-investigator,Everyone sang Happy Birthday to Emma.,What event is happening?,Birthday party,Wedding,Graduation,Concert,Hard,inference,Happy Birthday song = birthday celebration!
 inference-investigator,The doctor gave Amy a bandage for her knee.,What happened to Amy?,She hurt her knee,Has cold,Has fever,Is hungry,Hard,inference,Bandage on knee = knee injury or scrape!
 inference-investigator,Empty cookie jar sat on counter with crumbs.,What happened to cookies?,Someone ate them,In oven,Thrown away,Nothing,Hard,inference,Empty jar + crumbs = cookies were eaten!
+grammar-galaxy,The boy run to school every day.,Subject-Verb Agreement,runs,run,runs,ran,running,Easy,grammar,He/She/It needs -s! The boy RUNS.
+grammar-galaxy,We was going to the park.,Subject-Verb Agreement,were,was,were,is,are,Easy,grammar,We is plural so use WERE not was!
+grammar-galaxy,Her have a new book.,Pronoun,She,Her,She,His,Hers,Easy,grammar,Use SHE for subject. HER is for objects.
+grammar-galaxy,Me and John went home.,Pronoun,John and I,Me and John,John and I,I and John,John and me,Medium,grammar,Always put the other person first! John and I.
+grammar-galaxy,This is the most biggest house.,Comparative,biggest,most biggest,biggest,bigger,most big,Medium,grammar,Never use MOST with -EST! Just BIGGEST.
+grammar-galaxy,Her and I are friends.,Pronoun,She,Her,She,Hers,Herself,Medium,grammar,SHE and I are friends. SHE for subjects!
+grammar-galaxy,Neither of the boys are ready.,Subject-Verb Agreement,is,are,is,was,were,Hard,grammar,NEITHER is singular! Use IS not are.
+grammar-galaxy,The data is inconsistent.,Subject-Verb Agreement,are,is,are,was,were,Hard,grammar,DATA is plural! Use ARE. Datum is singular.
+grammar-galaxy,Me and her went shopping.,Pronoun,She and I,Me and her,She and I,Her and I,I and her,Hard,grammar,SHE and I went shopping. Subject pronouns!
+word-class-warp,jump,verb,verb,noun,verb,adjective,adverb,Easy,parts-of-speech,Jump is an action - what you DO!
+word-class-warp,happy,adjective,adjective,noun,verb,adjective,adverb,Easy,parts-of-speech,Happy describes feelings. A happy child!
+word-class-warp,slowly,adverb,adverb,noun,verb,adjective,adverb,Easy,parts-of-speech,Slowly tells HOW. Walk slowly. -LY = adverb!
+word-class-warp,teacher,noun,noun,noun,verb,adjective,adverb,Medium,parts-of-speech,Teacher is a person - that's a noun!
+word-class-warp,bright,adjective,adjective,noun,verb,adjective,adverb,Medium,parts-of-speech,Bright describes light. A bright star!
+word-class-warp,happily,adverb,adverb,noun,verb,adjective,adverb,Medium,parts-of-speech,Happily tells HOW you do something. -LY ending!
+word-class-warp,imagination,noun,noun,noun,verb,adjective,adverb,Hard,parts-of-speech,Imagination is an idea/concept - abstract noun!
+word-class-warp,fascinate,verb,verb,noun,verb,adjective,adverb,Hard,parts-of-speech,Fascinate is what interesting things DO to you!
+word-class-warp,carefully,adverb,adverb,noun,verb,adjective,adverb,Hard,parts-of-speech,Carefully describes HOW. Drive carefully!
+punctuation-pop,Come here right now,command,!,.,?,!,",",Easy,punctuation,Commands with urgency use exclamation marks!
+punctuation-pop,I have a dog,statement,.,.,?,!,",",Easy,punctuation,Simple statement = period at the end!
+punctuation-pop,Are you okay,question,?,.,?,!,",",Easy,punctuation,Asking if someone is okay = question mark!
+punctuation-pop,Please sit down,command,.,.,?,!,",",Medium,punctuation,Polite command can use period for calm tone!
+punctuation-pop,Which one do you want,question,?,.,?,!,",",Medium,punctuation,Which = question word needs question mark!
+punctuation-pop,Look at that rainbow,exclamation,!,.,?,!,",",Medium,punctuation,Excitement about rainbow = exclamation!
+punctuation-pop,Why did you do that,question,?,.,?,!,",",Hard,punctuation,Why = asking for reason = question mark!
+punctuation-pop,That hurts so much,exclamation,!,.,?,!,",",Hard,punctuation,Expression of pain = strong feeling = exclamation!
+punctuation-pop,The meeting starts at two,statement,.,.,?,!,",",Hard,punctuation,Stating a fact calmly = period!
+tense-traveler,jump,past,jumped,jump,jumped,jumps,will jump,Easy,tenses,Past tense: add -ED. Jump → Jumped!
+tense-traveler,play,present,plays,play,played,plays,will play,Easy,tenses,She/He PLAYS. Add -S for present with he/she/it!
+tense-traveler,talk,future,will talk,talk,talked,talks,will talk,Easy,tenses,Future: WILL + verb. Will talk tomorrow!
+tense-traveler,go,past,went,go,went,goes,will go,Medium,tenses,Go is irregular! Past = WENT not goed!
+tense-traveler,make,past,made,make,made,makes,will make,Medium,tenses,Make → Made (past). Irregular verb!
+tense-traveler,see,past,saw,see,saw,sees,will see,Medium,tenses,See → Saw (past). I saw a bird yesterday!
+tense-traveler,fly,past,flew,fly,flew,flies,will fly,Hard,tenses,Fly → Flew. The bird flew away!
+tense-traveler,buy,past,bought,buy,bought,buys,will buy,Hard,tenses,Buy → Bought. She bought milk yesterday!
+tense-traveler,fight,past,fought,fight,fought,fights,will fight,Hard,tenses,Fight → Fought. They fought bravely!
+synonym-stars,tiny,synonym,small,small,big,large,huge,Easy,vocabulary,Tiny and Small both mean very little!
+synonym-stars,sad,synonym,unhappy,unhappy,happy,glad,joyful,Easy,vocabulary,Sad = Unhappy = Sorrowful. Same meaning!
+synonym-stars,shout,synonym,yell,yell,whisper,quiet,silent,Easy,vocabulary,Shout and Yell both mean speak loudly!
+synonym-stars,error,synonym,mistake,mistake,correct,right,perfect,Medium,vocabulary,Error = Mistake = Wrong. All mean not correct!
+synonym-stars,sleepy,synonym,tired,tired,awake,alert,energetic,Medium,vocabulary,Sleepy = Tired = Drowsy. Need rest!
+synonym-stars,scared,synonym,afraid,afraid,brave,bold,fearless,Medium,vocabulary,Scared = Afraid = Frightened. All mean fearful!
+synonym-stars,complete,synonym,finish,finish,start,begin,commence,Hard,vocabulary,Complete = Finish = Conclude. All mean done!
+synonym-stars,discover,synonym,find,find,lose,hide,miss,Hard,vocabulary,Discover = Find = Uncover. All mean locate!
+synonym-stars,genuine,synonym,real,real,fake,false,phony,Hard,vocabulary,Genuine = Real = Authentic. Not fake!
+antonym-asteroids,up,antonym,down,down,above,high,top,Easy,vocabulary,Up ↔ Down. Opposite directions!
+antonym-asteroids,day,antonym,night,night,morning,afternoon,evening,Easy,vocabulary,Day (light) ↔ Night (dark)!
+antonym-asteroids,happy,antonym,sad,sad,joyful,glad,cheerful,Easy,vocabulary,Happy ↔ Sad. Opposite emotions!
+antonym-asteroids,empty,antonym,full,full,hollow,vacant,bare,Medium,vocabulary,Empty (nothing) ↔ Full (filled)!
+antonym-asteroids,strong,antonym,weak,weak,powerful,mighty,sturdy,Medium,vocabulary,Strong ↔ Weak. Opposite strengths!
+antonym-asteroids,friend,antonym,enemy,enemy,buddy,pal,companion,Medium,vocabulary,Friend (ally) ↔ Enemy (foe)!
+antonym-asteroids,increase,antonym,decrease,decrease,grow,expand,enlarge,Hard,vocabulary,Increase (more) ↔ Decrease (less)!
+antonym-asteroids,victory,antonym,defeat,defeat,win,triumph,success,Hard,vocabulary,Victory (win) ↔ Defeat (loss)!
+antonym-asteroids,accept,antonym,reject,reject,receive,take,welcome,Hard,vocabulary,Accept (take) ↔ Reject (refuse)!
+story-nebula,The New Pet,Maria wanted a pet. Her parents took her to the animal shelter. She chose a small orange kitten named Whiskers.,Animal shelter,Animal shelter,Pet store,Zoo,Park,Easy,Where did Maria get her pet?,The story says they went to the ANIMAL SHELTER!
+story-nebula,The New Pet,Maria wanted a pet. Her parents took her to the animal shelter. She chose a small orange kitten named Whiskers.,Whiskers,Whiskers,Fluffy,Mittens,Shadow,Easy,What was the kitten's name?,The kitten's name is WHISKERS!
+story-nebula,The New Pet,Maria wanted a pet. Her parents took her to the animal shelter. She chose a small orange kitten named Whiskers.,Orange,Orange,Black,White,Gray,Easy,What color was the kitten?,Look for the color word - ORANGE kitten!
+story-nebula,The Garden,Tom planted tomato seeds in his garden. He watered them every day. After two months small red tomatoes grew.,Tomato,Tomato,Carrot,Lettuce,Corn,Medium,What did Tom plant?,He planted TOMATO seeds!
+story-nebula,The Garden,Tom planted tomato seeds in his garden. He watered them every day. After two months small red tomatoes grew.,Every day,Every day,Once a week,Never,Sometimes,Medium,How often did Tom water?,The story says EVERY DAY!
+story-nebula,The Garden,Tom planted tomato seeds in his garden. He watered them every day. After two months small red tomatoes grew.,Two months,Two months,One week,One month,Three months,Medium,How long until tomatoes grew?,AFTER TWO MONTHS they grew!
+story-nebula,The Concert,Anna practiced violin for months. On concert night she played beautifully. The audience clapped for five minutes.,Violin,Violin,Piano,Guitar,Flute,Hard,What instrument did Anna play?,She practiced and played the VIOLIN!
+story-nebula,The Concert,Anna practiced violin for months. On concert night she played beautifully. The audience clapped for five minutes.,For months,For months,One day,One week,One year,Hard,How long did Anna practice?,She practiced FOR MONTHS!
+story-nebula,The Concert,Anna practiced violin for months. On concert night she played beautifully. The audience clapped for five minutes.,Five minutes,Five minutes,One minute,Ten minutes,Two minutes,Hard,How long did audience clap?,They clapped for FIVE MINUTES!
+inference-investigator,Tom put on sunscreen before going outside.,Why did Tom use sunscreen?,Sunny day,Rainy,Snowing,Cloudy,Easy,inference,Sunscreen protects from sun = sunny day expected!
+inference-investigator,Mom turned on the heater.,What can you infer?,It was cold,Hot,Warm,Summer,Easy,inference,Turning on heater = trying to warm up = cold!
+inference-investigator,The kids wore costumes and went trick-or-treating.,What holiday is it?,Halloween,Halloween,Christmas,Easter,Birthday,Easy,inference,Costumes + trick-or-treating = Halloween!
+inference-investigator,Dad packed suitcases and called a taxi.,What is Dad doing?,Going on trip,Staying home,Sleeping,Cooking,Medium,inference,Packing + taxi = traveling somewhere!
+inference-investigator,Students put books away when bell rang.,What time is it?,End of class,Start of class,Lunchtime,Morning,Medium,inference,Putting books away at bell = class ending!
+inference-investigator,The ice cream melted on the sidewalk.,What was the weather like?,Hot and sunny,Cold,Rainy,Windy,Medium,inference,Ice cream melting = hot temperature outside!
+inference-investigator,The library was quiet and everyone whispered.,Why are people whispering?,Library rules,Party time,Gym class,Recess,Hard,inference,Libraries require quiet - that's why whispers!
+inference-investigator,Chef tasted the soup and added more salt.,What was wrong with soup?,Not salty enough,Too salty,Too hot,Perfect,Hard,inference,Adding salt = soup needed more salt flavor!
+inference-investigator,Bird gathering worms in its beak repeatedly.,What is bird doing?,Feeding babies,Flying south,Building nest,Sleeping,Hard,inference,Gathering food repeatedly = feeding baby birds!
