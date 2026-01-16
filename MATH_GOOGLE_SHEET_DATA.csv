@@ -119,3 +119,75 @@ geometry-galaxy,square side 4,perimeter,16,16,12,20,8,Hard,4 times 4,Perimeter o
 geometry-galaxy,square side 5,perimeter,20,20,15,25,10,Hard,4 times 5,Perimeter = 4 × 5 = 20 units!
 geometry-galaxy,square side 2,area,4,4,2,6,8,Hard,2 times 2,Area = side × side. A square with side 2 has area 2×2=4!
 geometry-galaxy,square side 3,area,9,9,6,12,3,Hard,3 times 3,Area = 3 × 3 = 9 square units!
+space-math,6,2,+,8,8,7,9,10,Easy,Add 6 and 2,Adding small numbers: 6+2 equals 8!
+space-math,11,5,+,16,16,15,17,14,Easy,Add to 11,11+5: Start at 11 and count 5 more!
+space-math,9,3,-,6,6,5,7,8,Easy,9 minus 3,Subtraction: Take 3 away from 9 leaves 6!
+space-math,18,9,+,27,27,25,29,26,Medium,Add 18 and 9,Add: 18+10=28 then subtract 1 = 27!
+space-math,5,6,×,30,30,25,35,36,Medium,5 times 6,Multiply: 5×6 = 30. Count by 5s six times!
+space-math,7,9,×,63,63,54,72,56,Medium,7 times 9,7×9=63. Trick: 7×10=70 then subtract 7!
+space-math,81,9,÷,9,9,8,10,7,Hard,81 divided by 9,Division: 81÷9=9 because 9×9=81!
+space-math,13,11,×,143,143,121,154,132,Hard,13 times 11,13×11: Think (10+3)×11 = 110+33 = 143!
+space-math,108,9,÷,12,12,11,13,10,Hard,108 divided by 9,Division check: 12×9=108 so 108÷9=12!
+alien-invasion,5,2,+,7,7,6,8,9,Easy,Quick add,5+2=7. Use fingers to count quickly!
+alien-invasion,8,3,-,5,5,4,6,7,Easy,Fast take away,8-3=5. Count backwards: 7 6 5!
+alien-invasion,6,4,+,10,10,9,11,8,Easy,Make 10,6+4=10. Number bonds that make 10!
+alien-invasion,7,7,×,49,49,42,56,45,Medium,7 squared,7×7=49. Seven groups of seven!
+alien-invasion,9,4,×,36,36,32,40,35,Medium,9 times 4,9×4=36. Four nines: 9+9+9+9!
+alien-invasion,36,18,+,54,54,52,56,50,Medium,Add with tens,Add 20 then subtract 2: 36+20=56 -2=54!
+alien-invasion,144,12,÷,12,12,11,13,14,Hard,12 squared backwards,144÷12=12. Know your squares!
+alien-invasion,8,12,×,96,96,84,108,88,Hard,8 times 12,8×12=96. Double 8×6=48 then double again!
+alien-invasion,13,12,×,156,156,144,168,132,Hard,Big multiplication,13×12: 13×10=130 plus 13×2=26. Sum=156!
+bubble-pop,3,5,+,8,8,7,9,10,Easy,Add 3 and 5,3+5=8. Make patterns: 3+5 4+4!
+bubble-pop,10,3,-,7,7,6,8,9,Easy,10 minus 3,From 10 subtract 3 leaves 7!
+bubble-pop,5,6,+,11,11,10,12,13,Easy,5 plus 6,5+6=11. Think 5+5=10 plus 1 more!
+bubble-pop,7,5,×,35,35,30,40,32,Medium,7 times 5,7×5=35. Count by 7s: 7 14 21 28 35!
+bubble-pop,9,3,×,27,27,24,30,21,Medium,9 times 3,9×3=27. Three nines: 9+9+9=27!
+bubble-pop,24,6,÷,4,4,3,5,6,Medium,Divide 24 by 6,24÷6=4. How many 6s in 24? Four!
+bubble-pop,7,12,×,84,84,72,96,78,Hard,7 times 12,7×12=84. Seven dozen eggs!
+bubble-pop,11,9,×,99,99,88,110,90,Hard,11 times 9,11×9=99. Pattern: 11×9 has 9s!
+bubble-pop,72,9,÷,8,8,7,9,6,Hard,72 divided by 9,72÷9=8. Nine eights make 72!
+planet-hopper,1 3 5 ? 9,sequence,7,7,5,9,11,Easy,Add 2 odd numbers,Odd numbers: 1 3 5 7 9!
+planet-hopper,4 8 12 16 ?,sequence,20,20,18,22,24,Easy,Add 4 each time,Counting by 4s like quarters!
+planet-hopper,2 4 8 ? 32,sequence,16,16,12,20,24,Easy,Double each time,Pattern: ×2 each step. 2 4 8 16 32!
+planet-hopper,5 10 15 20 ?,sequence,25,25,20,30,35,Medium,Add 5 each time,Skip counting by 5s!
+planet-hopper,3 9 27 ?,sequence,81,81,54,72,90,Medium,Times 3 pattern,Multiply by 3: 3 9 27 81!
+planet-hopper,100 90 80 ? 60,sequence,70,70,65,75,50,Medium,Subtract 10,Counting backwards by 10s!
+planet-hopper,1 4 9 16 ?,sequence,25,25,20,30,36,Hard,Square numbers,Squares: 1² 2² 3² 4² 5² = 1 4 9 16 25!
+planet-hopper,20 40 60 ? 100,sequence,80,80,70,90,85,Hard,Add 20 each time,Counting by 20s!
+planet-hopper,1 1 2 3 5 ?,sequence,8,8,6,10,7,Hard,Fibonacci sequence,Add last two: 1+1=2 1+2=3 2+3=5 3+5=8!
+fraction-frenzy,1/3 vs 2/3,compare,2/3,2/3,1/3,1/2,3/4,Easy,More thirds,2 out of 3 is bigger than 1 out of 3!
+fraction-frenzy,1/2 vs 3/4,compare,3/4,3/4,1/2,1/3,2/3,Easy,Three quarters bigger,3/4 is more than half (1/2)!
+fraction-frenzy,1/4 vs 1/2,compare,1/2,1/2,1/4,3/4,2/4,Easy,Half vs quarter,1/2 is double 1/4!
+fraction-frenzy,3/4 shaded of 8 parts,identify,6/8,6/8,3/4,1/2,2/8,Medium,Six eighths,6 out of 8 parts = 6/8 which equals 3/4!
+fraction-frenzy,1/2 shaded of 6 parts,identify,3/6,3/6,1/2,2/6,4/6,Medium,Three sixths,Half of 6 is 3 so 3/6 = 1/2!
+fraction-frenzy,2/3 shaded of 6 parts,identify,4/6,4/6,2/3,3/6,5/6,Medium,Four sixths,4 out of 6 = 4/6 = 2/3!
+fraction-frenzy,6/8 simplified,equivalent,3/4,3/4,1/2,2/3,1/4,Hard,Six eighths equals,6/8 = 3/4. Divide both by 2!
+fraction-frenzy,4/6 simplified,equivalent,2/3,2/3,1/2,3/4,1/3,Hard,Four sixths equals,4/6 = 2/3. Divide both by 2!
+fraction-frenzy,5/10 simplified,equivalent,1/2,1/2,1/5,2/5,5/5,Hard,Five tenths equals,5/10 = 1/2. Half of 10 is 5!
+time-warp,1,0,read,1:00,1:00,2:00,12:00,11:00,Easy,Hour hand on 1,1 o'clock - hour hand points to 1!
+time-warp,2,0,read,2:00,2:00,1:00,3:00,4:00,Easy,Hour hand on 2,2:00 - both hands make an L shape!
+time-warp,5,0,read,5:00,5:00,4:00,6:00,7:00,Easy,Hour hand on 5,5 o'clock - minute hand up hour hand on 5!
+time-warp,8,30,read,8:30,8:30,8:00,9:00,7:30,Medium,Half past 8,8:30 - halfway between 8 and 9!
+time-warp,5,15,read,5:15,5:15,5:30,5:45,4:15,Medium,Quarter past 5,15 minutes after 5 o'clock!
+time-warp,11,45,read,11:45,11:45,11:15,12:00,10:45,Medium,Quarter to 12,11:45 is 15 minutes before noon!
+time-warp,4:00 to 7:00,duration,3 hours,3 hours,4 hours,2 hours,5 hours,Hard,Count hours,From 4 to 7 is 3 hours: 4→5→6→7!
+time-warp,6:00 to 6:15,duration,15 minutes,15 minutes,30 minutes,45 minutes,1 hour,Hard,Quarter hour,15 minutes = quarter of an hour!
+time-warp,2:30 to 5:00,duration,2 hours 30 min,2 hours 30 min,2 hours,3 hours,2 hours 15 min,Hard,Two and a half hours,2:30 to 5:00 = 2.5 hours!
+money-master,1 quarter + 1 nickel,count,30¢,30¢,25¢,35¢,20¢,Easy,Quarter plus nickel,25¢ + 5¢ = 30¢!
+money-master,2 dimes + 1 nickel,count,25¢,25¢,20¢,30¢,15¢,Easy,Dimes and nickel,20¢ + 5¢ = 25¢ (quarter)!
+money-master,4 nickels,count,20¢,20¢,15¢,25¢,10¢,Easy,Count nickels,4 nickels: 5+5+5+5 = 20¢!
+money-master,3 quarters + 1 dime,count,85¢,85¢,80¢,90¢,75¢,Medium,Quarters and dime,75¢ + 10¢ = 85¢!
+money-master,2 quarters + 3 nickels,count,65¢,65¢,60¢,70¢,55¢,Medium,Mixed coins count,50¢ + 15¢ = 65¢!
+money-master,6 dimes,count,60¢,60¢,50¢,70¢,55¢,Medium,Six dimes,6×10¢ = 60¢!
+money-master,Price 45¢ Pay $1.00,change,55¢,55¢,50¢,60¢,45¢,Hard,Change from dollar,$1.00 - 45¢ = 55¢ back!
+money-master,Price 70¢ Pay $1.00,change,30¢,30¢,25¢,35¢,40¢,Hard,30 cents change,100¢ - 70¢ = 30¢!
+money-master,Price 55¢ Pay $1.00,change,45¢,45¢,40¢,50¢,35¢,Hard,Calculate change,100¢ - 55¢ = 45¢ back!
+geometry-galaxy,hexagon,identify,Hexagon,Hexagon,Pentagon,Octagon,Square,Easy,6 sided shape,Hexagons have 6 sides like honeycomb!
+geometry-galaxy,oval,identify,Oval,Oval,Circle,Rectangle,Square,Easy,Egg shape,Ovals are stretched circles like eggs!
+geometry-galaxy,octagon,identify,Octagon,Octagon,Hexagon,Pentagon,Square,Easy,8 sided shape,Octagons have 8 sides like stop signs!
+geometry-galaxy,rectangle,sides,4,4,3,5,6,Medium,Four sides,Rectangles have 4 sides - 2 long 2 short!
+geometry-galaxy,circle,sides,0,0,1,2,infinite,Medium,No sides,Circles have no sides - they're round!
+geometry-galaxy,triangle,sides,3,3,4,2,5,Medium,Three sides,Triangles always have exactly 3 sides!
+geometry-galaxy,square side 6,perimeter,24,24,18,30,12,Hard,4 times 6,Perimeter = 4×6 = 24 units!
+geometry-galaxy,square side 4,area,16,16,12,20,8,Hard,4 times 4,Area = 4×4 = 16 square units!
+geometry-galaxy,square side 5,area,25,25,20,30,15,Hard,5 times 5,Area = side² = 5×5 = 25!
