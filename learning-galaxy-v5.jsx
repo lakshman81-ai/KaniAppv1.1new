@@ -25,6 +25,7 @@ const DEFAULT_SETTINGS = {
   selectedEnglishWorksheet: '1',
   defaultDifficulty: 'None',
   soundEnabled: true,
+  leaderboardUrl: '',
   settingsSheetUrl: ''
 };
 
@@ -713,25 +714,25 @@ const SettingsPage = ({ settings, setSettings, onBack }) => {
     setSettings(localSettings);
     try { await storage.set('learning-galaxy-settings', JSON.stringify(localSettings)); } catch (e) { }
 
-    // Save to Google Sheets if URL is provided
-    if (localSettings.settingsSheetUrl && localSettings.settingsSheetUrl.trim()) {
+    // Send settings to Google Sheet if URL is configured
+    if (localSettings.settingsSheetUrl) {
       try {
-        const settingsData = {
-          timestamp: new Date().toISOString(),
-          mathSheetUrl: localSettings.mathSheetUrl,
-          englishSheetUrl: localSettings.englishSheetUrl,
-          defaultDifficulty: localSettings.defaultDifficulty,
-          soundEnabled: localSettings.soundEnabled
-        };
-
         await fetch(localSettings.settingsSheetUrl, {
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(settingsData)
+          body: JSON.stringify({
+            timestamp: new Date().toISOString(),
+            mathSheetUrl: localSettings.mathSheetUrl,
+            englishSheetUrl: localSettings.englishSheetUrl,
+            defaultDifficulty: localSettings.defaultDifficulty,
+            leaderboardUrl: localSettings.leaderboardUrl || '',
+            settingsSheetUrl: localSettings.settingsSheetUrl || ''
+          })
         });
-      } catch (e) {
-        console.error('Failed to save settings to Google Sheets:', e);
+        console.log('Settings saved to Google Sheet');
+      } catch (err) {
+        console.error('Failed to save settings to Google Sheet:', err);
       }
     }
 
@@ -790,9 +791,10 @@ const SettingsPage = ({ settings, setSettings, onBack }) => {
           </div>
           <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
             <h2 className="text-xl font-bold text-white mb-4">🎯 Default Difficulty</h2>
+            <p className="text-gray-400 text-sm mb-4">Choose "None" to let kids pick difficulty each game</p>
             <select value={localSettings.defaultDifficulty} onChange={(e) => setLocalSettings({ ...localSettings, defaultDifficulty: e.target.value })}
               className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white border border-gray-600 cursor-pointer">
-              <option value="None">None (Let me choose each time)</option>
+              <option value="None">None (Choose per game)</option>
               <option value="Easy">Easy</option>
               <option value="Medium">Medium</option>
               <option value="Hard">Hard</option>
@@ -800,18 +802,24 @@ const SettingsPage = ({ settings, setSettings, onBack }) => {
             <p className="text-gray-400 text-xs mt-2">When "None" is selected, you can choose difficulty before each game. Otherwise, only the selected difficulty will be available.</p>
           </div>
           <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
-            <h2 className="text-xl font-bold text-white mb-4">📊 Settings Sync Sheet (Optional)</h2>
-            <textarea value={localSettings.settingsSheetUrl} onChange={(e) => setLocalSettings({ ...localSettings, settingsSheetUrl: e.target.value })}
-              placeholder="Enter Google Apps Script Web App URL to save settings..."
-              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none text-xs font-mono resize-none" rows={2} />
-            <p className="text-gray-400 text-xs mt-2">Settings will be automatically saved to this Google Sheet when you click Save.</p>
+            <h2 className="text-xl font-bold text-white mb-4">📊 Leaderboard Integration</h2>
+            <p className="text-gray-400 text-sm mb-4">Paste Google Apps Script Web App URL to save scores online</p>
+            <input type="text" placeholder="https://script.google.com/macros/s/..." value={localSettings.leaderboardUrl || ''} onChange={(e) => setLocalSettings({ ...localSettings, leaderboardUrl: e.target.value })}
+              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none" />
           </div>
           <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
-            <h2 className="text-xl font-bold text-white mb-4">💾 Settings Backup Sheet URL (Optional)</h2>
-            <textarea value={localSettings.settingsSheetUrl || ''} onChange={(e) => setLocalSettings({ ...localSettings, settingsSheetUrl: e.target.value })}
-              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none text-xs font-mono resize-none" rows={3}
-              placeholder="Paste Google Apps Script Web App URL here to save settings backup"/>
-            <p className="text-gray-400 text-xs mt-2">Settings will be automatically saved to this Google Sheet when you click Save. Leave empty to skip backup.</p>
+            <h2 className="text-xl font-bold text-white mb-4">⚙️ Settings Backup to Google Sheet</h2>
+            <p className="text-gray-400 text-sm mb-4">Paste Google Apps Script Web App URL to save settings to Google Sheets</p>
+            <input type="text" placeholder="https://script.google.com/macros/s/..." value={localSettings.settingsSheetUrl || ''} onChange={(e) => setLocalSettings({ ...localSettings, settingsSheetUrl: e.target.value })}
+              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none" />
+            <p className="text-gray-400 text-xs mt-2">💡 When configured, all settings changes will be saved to your Google Sheet</p>
+          </div>
+          <div className="flex gap-3">
+            <button onClick={handleReset} className="flex-1 bg-gray-600 text-white px-6 py-4 rounded-full text-lg font-bold hover:bg-gray-500 transition-colors cursor-pointer">🔄 Reset</button>
+            <button onClick={handleSave} disabled={!isValid}
+              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-4 rounded-full text-lg font-bold hover:scale-105 transition-transform shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+              💾 Save
+            </button>
           </div>
           <button onClick={handleSave} className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-transform shadow-lg cursor-pointer">💾 Save Settings</button>
         </div>
@@ -821,21 +829,31 @@ const SettingsPage = ({ settings, setSettings, onBack }) => {
 };
 
 // ============ NAVIGATION COMPONENTS ============
-const DifficultySelector = ({ game, onSelect, onBack }) => {
+const DifficultySelector = ({ game, onSelect, onBack, settings }) => {
   const gameInfo = ALL_GAMES.find(g => g.id === game);
+  const lockedDifficulty = settings?.defaultDifficulty && settings.defaultDifficulty !== 'None' ? settings.defaultDifficulty : null;
+
   return (
     <SpaceBackground variant="math">
       <div className="flex flex-col items-center justify-center h-full px-4">
         <button onClick={onBack} className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-700 z-20 cursor-pointer">←</button>
         <div className="text-6xl mb-4">{gameInfo?.icon}</div>
-        <h1 className="text-4xl font-bold text-white mb-8">{gameInfo?.title}</h1>
+        <h1 className="text-4xl font-bold text-white mb-4">{gameInfo?.title}</h1>
+        {lockedDifficulty && <p className="text-purple-300 mb-4 text-sm">Difficulty locked to {lockedDifficulty} in settings</p>}
         <div className="flex flex-col gap-4 w-full max-w-xs relative z-20">
-          {['Easy', 'Medium', 'Hard'].map(diff => (
-            <button key={diff} onClick={() => onSelect(diff)}
-              className={`p-4 rounded-2xl text-left transition-all hover:scale-105 cursor-pointer ${diff === 'Easy' ? 'bg-gradient-to-r from-green-500 to-green-600' : diff === 'Medium' ? 'bg-gradient-to-r from-yellow-500 to-orange-500' : 'bg-gradient-to-r from-red-500 to-red-600'}`}>
-              <div className="text-xl font-bold text-white">{diff}</div>
-            </button>
-          ))}
+          {['Easy', 'Medium', 'Hard'].map(diff => {
+            const isDisabled = lockedDifficulty && lockedDifficulty !== diff;
+            return (
+              <button
+                key={diff}
+                onClick={() => !isDisabled && onSelect(diff)}
+                disabled={isDisabled}
+                className={`p-4 rounded-2xl text-left transition-all cursor-pointer ${isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:scale-105'} ${diff === 'Easy' ? 'bg-gradient-to-r from-green-500 to-green-600' : diff === 'Medium' ? 'bg-gradient-to-r from-yellow-500 to-orange-500' : 'bg-gradient-to-r from-red-500 to-red-600'}`}
+              >
+                <div className="text-xl font-bold text-white">{diff}</div>
+              </button>
+            );
+          })}
         </div>
       </div>
     </SpaceBackground>
@@ -1243,15 +1261,7 @@ const LearningGalaxy = () => {
     return <SheetBasedGame onBack={handleBackToHome} difficulty={selectedDifficulty} onGameEnd={handleGameEnd} settings={settings} gameId={currentGame} title={gameInfo?.title} icon={gameInfo?.icon} color={gameInfo?.color} variant={variant} />;
   }
 
-  // Check if default difficulty is set (not "None")
-  if (currentGame && settings.defaultDifficulty !== 'None') {
-    // Auto-select the default difficulty and go directly to game
-    const gameInfo = ALL_GAMES.find(g => g.id === currentGame);
-    const variant = MATH_GAMES.find(g => g.id === currentGame) ? 'math' : GRAMMAR_GAMES.find(g => g.id === currentGame) ? 'grammar' : VOCABULARY_GAMES.find(g => g.id === currentGame) ? 'vocabulary' : 'comprehension';
-    return <SheetBasedGame onBack={handleBackToHome} difficulty={settings.defaultDifficulty} onGameEnd={handleGameEnd} settings={settings} gameId={currentGame} title={gameInfo?.title} icon={gameInfo?.icon} color={gameInfo?.color} variant={variant} />;
-  }
-
-  if (currentGame) return <DifficultySelector game={currentGame} onSelect={setSelectedDifficulty} onBack={() => setCurrentGame(null)} />;
+  if (currentGame) return <DifficultySelector game={currentGame} onSelect={setSelectedDifficulty} onBack={() => setCurrentGame(null)} settings={settings} />;
   if (currentSubject === 'english' && englishCategory) {
     const games = englishCategory === 'grammar' ? GRAMMAR_GAMES : englishCategory === 'vocabulary' ? VOCABULARY_GAMES : COMPREHENSION_GAMES;
     return <GameTilesPage title={englishCategory.charAt(0).toUpperCase() + englishCategory.slice(1)} icon={englishCategory === 'grammar' ? '✏️' : englishCategory === 'vocabulary' ? '📖' : '🔍'} games={games} onSelectGame={setCurrentGame} onBack={() => setEnglishCategory(null)} totalStars={totalStars} variant={englishCategory} />;
