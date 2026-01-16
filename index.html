@@ -4,7 +4,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Learning Galaxy - Grade 3-4 Games</title>
+  <!-- Cache Control Meta Tags - Version 2.0 -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="version" content="2.0">
+  <title>Learning Galaxy - Grade 3-4 Games v2.0</title>
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -184,7 +189,9 @@
     const DEFAULT_SETTINGS = {
       mathSheetUrl: './MATH_GOOGLE_SHEET_DATA.csv',
       englishSheetUrl: './ENGLISH_GOOGLE_SHEET_DATA.csv',
-      defaultDifficulty: 'None'
+      defaultDifficulty: 'None',
+      leaderboardUrl: '',
+      settingsSheetUrl: ''
     };
 
     // ============ CSV PARSER ============
@@ -1028,6 +1035,29 @@
       const handleSave = async () => {
         setSettings(localSettings);
         try { await storage.set('learning-galaxy-settings', JSON.stringify(localSettings)); } catch (e) { }
+
+        // Send settings to Google Sheet if URL is configured
+        if (localSettings.settingsSheetUrl) {
+          try {
+            await fetch(localSettings.settingsSheetUrl, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                timestamp: new Date().toISOString(),
+                mathSheetUrl: localSettings.mathSheetUrl,
+                englishSheetUrl: localSettings.englishSheetUrl,
+                defaultDifficulty: localSettings.defaultDifficulty,
+                leaderboardUrl: localSettings.leaderboardUrl || '',
+                settingsSheetUrl: localSettings.settingsSheetUrl || ''
+              })
+            });
+            console.log('Settings saved to Google Sheet');
+          } catch (err) {
+            console.error('Failed to save settings to Google Sheet:', err);
+          }
+        }
+
         onBack();
       };
 
@@ -1116,6 +1146,19 @@
                   onChange={(e) => setLocalSettings({ ...localSettings, leaderboardUrl: e.target.value })}
                   className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none"
                 />
+              </div>
+
+              <div className="bg-gray-900/80 rounded-2xl p-6 backdrop-blur">
+                <h2 className="text-xl font-bold text-white mb-2">⚙️ Settings Backup to Google Sheet</h2>
+                <p className="text-gray-400 text-sm mb-4">Paste Google Apps Script Web App URL to save settings to Google Sheets</p>
+                <input
+                  type="text"
+                  placeholder="https://script.google.com/macros/s/..."
+                  value={localSettings.settingsSheetUrl || ''}
+                  onChange={(e) => setLocalSettings({ ...localSettings, settingsSheetUrl: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none"
+                />
+                <p className="text-gray-400 text-xs mt-2">💡 When configured, all settings changes will be saved to your Google Sheet</p>
               </div>
               <button onClick={handleSave} className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-transform shadow-lg cursor-pointer">
                 💾 Save Settings
