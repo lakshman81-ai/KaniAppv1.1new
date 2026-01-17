@@ -101,21 +101,21 @@ story-nebula,The Library Visit,Jake went to the library with his grandmother. He
 story-nebula,The Library Visit,Jake went to the library with his grandmother. He found a book about dinosaurs and the librarian helped him check it out.,Dinosaurs,Dinosaurs,Cars,Space,Dogs,Hard,What was the book about?,He found a book ABOUT DINOSAURS!
 story-nebula,Birthday Cake,Mom baked a cake for Dads birthday. She used chocolate frosting. When Dad came home he was surprised and happy.,A cake,A cake,Cookies,Pie,Bread,Hard,What did Mom bake?,Mom BAKED a CAKE - look for the action and object!
 story-nebula,Birthday Cake,Mom baked a cake for Dads birthday. She used chocolate frosting. When Dad came home he was surprised and happy.,Surprised and happy,Surprised and happy,Angry,Sad,Tired,Hard,How did Dad feel?,Look for feeling words - SURPRISED and HAPPY!
-inference-investigator,Maria grabbed her umbrella before leaving the house.,What can you infer about the weather?,It might rain,Very hot,Snowing,Windy,Easy,inference,Umbrella = expecting rain! Good inference!
-inference-investigator,The boys eyes grew wide when he opened the present.,How did the boy feel?,Surprised or excited,Disappointed,Angry,Bored,Easy,inference,Eyes growing wide = surprise or excitement!
-inference-investigator,Sarah yawned and rubbed her eyes during the movie.,What can you infer about Sarah?,She was tired,Scared,Hungry,Cold,Easy,inference,Yawning + rubbing eyes = signs of being tired!
-inference-investigator,The dog wagged its tail and jumped when Tom came home.,How did the dog feel?,Happy to see Tom,Scared,Hungry,Sleepy,Easy,inference,Wagging tail + jumping = dog is happy and excited!
-inference-investigator,Mom put on her apron and took out flour and eggs.,What is Mom going to do?,Bake something,Go shopping,Clean,Watch TV,Easy,inference,Apron + flour + eggs = baking ingredients!
-inference-investigator,The students cheered when teacher said no homework.,How did students feel?,Happy,Sad,Confused,Angry,Medium,inference,Cheering = celebrating = happy about no homework!
-inference-investigator,Dad put on his coat and grabbed car keys.,What is Dad about to do?,Leave the house,Go to sleep,Eat dinner,Watch TV,Medium,inference,Coat + car keys = going somewhere by car!
-inference-investigator,The flowers were drooping and the soil was dry.,What do the flowers need?,Water,Sunlight,Fertilizer,Nothing,Medium,inference,Drooping + dry soil = thirsty plants need water!
-inference-investigator,Lisa smiled and hugged grandma at the airport.,How does Lisa feel?,Happy,Sad,Angry,Scared,Medium,inference,Smiling + hugging = happy to see grandma!
-inference-investigator,The baby cried when loud thunder boomed.,Why is the baby crying?,Thunder scared baby,Baby hungry,Baby tired,Baby hot,Medium,inference,Loud sounds can scare babies - the thunder frightened the baby!
-inference-investigator,Sam practiced piano two hours daily for a month.,What can you infer about Sam?,Wants to improve,Hates piano,Is lazy,No hobbies,Hard,inference,Practicing a lot = dedicated = wants to get better!
-inference-investigator,The bird built a nest and gathered twigs.,What is the bird preparing for?,Having baby birds,Winter,Storm,Moving,Hard,inference,Nest building = preparing for eggs and baby birds!
-inference-investigator,Everyone sang Happy Birthday to Emma.,What event is happening?,Birthday party,Wedding,Graduation,Concert,Hard,inference,Happy Birthday song = birthday celebration!
-inference-investigator,The doctor gave Amy a bandage for her knee.,What happened to Amy?,She hurt her knee,Has cold,Has fever,Is hungry,Hard,inference,Bandage on knee = knee injury or scrape!
-inference-investigator,Empty cookie jar sat on counter with crumbs.,What happened to cookies?,Someone ate them,In oven,Thrown away,Nothing,Hard,inference,Empty jar + crumbs = cookies were eaten!
+inference-investigator,Maria grabbed her umbrella before leaving the house.,What can you infer about the weather?,It might rain,Very hot,Snowing,Windy,,Easy,inference,Umbrella = expecting rain! Good inference!
+inference-investigator,The boys eyes grew wide when he opened the present.,How did the boy feel?,Surprised or excited,Disappointed,Angry,Bored,,Easy,inference,Eyes growing wide = surprise or excitement!
+inference-investigator,Sarah yawned and rubbed her eyes during the movie.,What can you infer about Sarah?,She was tired,Scared,Hungry,Cold,,Easy,inference,Yawning + rubbing eyes = signs of being tired!
+inference-investigator,The dog wagged its tail and jumped when Tom came home.,How did the dog feel?,Happy to see Tom,Scared,Hungry,Sleepy,,Easy,inference,Wagging tail + jumping = dog is happy and excited!
+inference-investigator,Mom put on her apron and took out flour and eggs.,What is Mom going to do?,Bake something,Go shopping,Clean,Watch TV,,Easy,inference,Apron + flour + eggs = baking ingredients!
+inference-investigator,The students cheered when teacher said no homework.,How did students feel?,Happy,Sad,Confused,Angry,,Medium,inference,Cheering = celebrating = happy about no homework!
+inference-investigator,Dad put on his coat and grabbed car keys.,What is Dad about to do?,Leave the house,Go to sleep,Eat dinner,Watch TV,,Medium,inference,Coat + car keys = going somewhere by car!
+inference-investigator,The flowers were drooping and the soil was dry.,What do the flowers need?,Water,Sunlight,Fertilizer,Nothing,,Medium,inference,Drooping + dry soil = thirsty plants need water!
+inference-investigator,Lisa smiled and hugged grandma at the airport.,How does Lisa feel?,Happy,Sad,Angry,Scared,,Medium,inference,Smiling + hugging = happy to see grandma!
+inference-investigator,The baby cried when loud thunder boomed.,Why is the baby crying?,Thunder scared baby,Baby hungry,Baby tired,Baby hot,,Medium,inference,Loud sounds can scare babies - the thunder frightened the baby!
+inference-investigator,Sam practiced piano two hours daily for a month.,What can you infer about Sam?,Wants to improve,Hates piano,Is lazy,No hobbies,,Hard,inference,Practicing a lot = dedicated = wants to get better!
+inference-investigator,The bird built a nest and gathered twigs.,What is the bird preparing for?,Having baby birds,Winter,Storm,Moving,,Hard,inference,Nest building = preparing for eggs and baby birds!
+inference-investigator,Everyone sang Happy Birthday to Emma.,What event is happening?,Birthday party,Wedding,Graduation,Concert,,Hard,inference,Happy Birthday song = birthday celebration!
+inference-investigator,The doctor gave Amy a bandage for her knee.,What happened to Amy?,She hurt her knee,Has cold,Has fever,Is hungry,,Hard,inference,Bandage on knee = knee injury or scrape!
+inference-investigator,Empty cookie jar sat on counter with crumbs.,What happened to cookies?,Someone ate them,In oven,Thrown away,Nothing,,Hard,inference,Empty jar + crumbs = cookies were eaten!
 grammar-galaxy,The boy run to school every day.,Subject-Verb Agreement,runs,run,runs,ran,running,Easy,grammar,He/She/It needs -s! The boy RUNS.
 grammar-galaxy,We was going to the park.,Subject-Verb Agreement,were,was,were,is,are,Easy,grammar,We is plural so use WERE not was!
 grammar-galaxy,Her have a new book.,Pronoun,She,Her,She,His,Hers,Easy,grammar,Use SHE for subject. HER is for objects.
@@ -179,12 +179,12 @@ story-nebula,The Garden,Tom planted tomato seeds in his garden. He watered them 
 story-nebula,The Concert,Anna practiced violin for months. On concert night she played beautifully. The audience clapped for five minutes.,Violin,Violin,Piano,Guitar,Flute,Hard,What instrument did Anna play?,She practiced and played the VIOLIN!
 story-nebula,The Concert,Anna practiced violin for months. On concert night she played beautifully. The audience clapped for five minutes.,For months,For months,One day,One week,One year,Hard,How long did Anna practice?,She practiced FOR MONTHS!
 story-nebula,The Concert,Anna practiced violin for months. On concert night she played beautifully. The audience clapped for five minutes.,Five minutes,Five minutes,One minute,Ten minutes,Two minutes,Hard,How long did audience clap?,They clapped for FIVE MINUTES!
-inference-investigator,Tom put on sunscreen before going outside.,Why did Tom use sunscreen?,Sunny day,Rainy,Snowing,Cloudy,Easy,inference,Sunscreen protects from sun = sunny day expected!
-inference-investigator,Mom turned on the heater.,What can you infer?,It was cold,Hot,Warm,Summer,Easy,inference,Turning on heater = trying to warm up = cold!
+inference-investigator,Tom put on sunscreen before going outside.,Why did Tom use sunscreen?,Sunny day,Rainy,Snowing,Cloudy,,Easy,inference,Sunscreen protects from sun = sunny day expected!
+inference-investigator,Mom turned on the heater.,What can you infer?,It was cold,Hot,Warm,Summer,,Easy,inference,Turning on heater = trying to warm up = cold!
 inference-investigator,The kids wore costumes and went trick-or-treating.,What holiday is it?,Halloween,Halloween,Christmas,Easter,Birthday,Easy,inference,Costumes + trick-or-treating = Halloween!
-inference-investigator,Dad packed suitcases and called a taxi.,What is Dad doing?,Going on trip,Staying home,Sleeping,Cooking,Medium,inference,Packing + taxi = traveling somewhere!
-inference-investigator,Students put books away when bell rang.,What time is it?,End of class,Start of class,Lunchtime,Morning,Medium,inference,Putting books away at bell = class ending!
-inference-investigator,The ice cream melted on the sidewalk.,What was the weather like?,Hot and sunny,Cold,Rainy,Windy,Medium,inference,Ice cream melting = hot temperature outside!
-inference-investigator,The library was quiet and everyone whispered.,Why are people whispering?,Library rules,Party time,Gym class,Recess,Hard,inference,Libraries require quiet - that's why whispers!
-inference-investigator,Chef tasted the soup and added more salt.,What was wrong with soup?,Not salty enough,Too salty,Too hot,Perfect,Hard,inference,Adding salt = soup needed more salt flavor!
-inference-investigator,Bird gathering worms in its beak repeatedly.,What is bird doing?,Feeding babies,Flying south,Building nest,Sleeping,Hard,inference,Gathering food repeatedly = feeding baby birds!
+inference-investigator,Dad packed suitcases and called a taxi.,What is Dad doing?,Going on trip,Staying home,Sleeping,Cooking,,Medium,inference,Packing + taxi = traveling somewhere!
+inference-investigator,Students put books away when bell rang.,What time is it?,End of class,Start of class,Lunchtime,Morning,,Medium,inference,Putting books away at bell = class ending!
+inference-investigator,The ice cream melted on the sidewalk.,What was the weather like?,Hot and sunny,Cold,Rainy,Windy,,Medium,inference,Ice cream melting = hot temperature outside!
+inference-investigator,The library was quiet and everyone whispered.,Why are people whispering?,Library rules,Party time,Gym class,Recess,,Hard,inference,Libraries require quiet - that's why whispers!
+inference-investigator,Chef tasted the soup and added more salt.,What was wrong with soup?,Not salty enough,Too salty,Too hot,Perfect,,Hard,inference,Adding salt = soup needed more salt flavor!
+inference-investigator,Bird gathering worms in its beak repeatedly.,What is bird doing?,Feeding babies,Flying south,Building nest,Sleeping,,Hard,inference,Gathering food repeatedly = feeding baby birds!

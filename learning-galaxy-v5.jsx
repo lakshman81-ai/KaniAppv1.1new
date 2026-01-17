@@ -697,7 +697,9 @@ const SettingsPage = ({ settings, setSettings, onBack }) => {
           mathSheetUrl: localSettings.mathSheetUrl,
           englishSheetUrl: localSettings.englishSheetUrl,
           defaultDifficulty: localSettings.defaultDifficulty,
-          soundEnabled: localSettings.soundEnabled
+          soundEnabled: localSettings.soundEnabled,
+          leaderboardUrl: localSettings.leaderboardUrl || '',
+          settingsSheetUrl: localSettings.settingsSheetUrl || ''
         };
 
         await fetch(localSettings.settingsSheetUrl, {
@@ -706,33 +708,9 @@ const SettingsPage = ({ settings, setSettings, onBack }) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(settingsData)
         });
+        console.log('Settings saved to Google Sheet');
       } catch (e) {
         console.error('Failed to save settings to Google Sheet:', e);
-      }
-    }
-
-    setSettings(localSettings);
-    try { await storage.set('learning-galaxy-settings', JSON.stringify(localSettings)); } catch (e) { }
-
-    // Send settings to Google Sheet if URL is configured
-    if (localSettings.settingsSheetUrl) {
-      try {
-        await fetch(localSettings.settingsSheetUrl, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            timestamp: new Date().toISOString(),
-            mathSheetUrl: localSettings.mathSheetUrl,
-            englishSheetUrl: localSettings.englishSheetUrl,
-            defaultDifficulty: localSettings.defaultDifficulty,
-            leaderboardUrl: localSettings.leaderboardUrl || '',
-            settingsSheetUrl: localSettings.settingsSheetUrl || ''
-          })
-        });
-        console.log('Settings saved to Google Sheet');
-      } catch (err) {
-        console.error('Failed to save settings to Google Sheet:', err);
       }
     }
 
@@ -1262,12 +1240,19 @@ const LearningGalaxy = () => {
   }
 
   if (currentGame) return <DifficultySelector game={currentGame} onSelect={setSelectedDifficulty} onBack={() => setCurrentGame(null)} settings={settings} />;
+  const handleGameSelect = (gameId) => {
+    setCurrentGame(gameId);
+    if (settings.defaultDifficulty && settings.defaultDifficulty !== 'None') {
+      setSelectedDifficulty(settings.defaultDifficulty);
+    }
+  };
+
   if (currentSubject === 'english' && englishCategory) {
     const games = englishCategory === 'grammar' ? GRAMMAR_GAMES : englishCategory === 'vocabulary' ? VOCABULARY_GAMES : COMPREHENSION_GAMES;
-    return <GameTilesPage title={englishCategory.charAt(0).toUpperCase() + englishCategory.slice(1)} icon={englishCategory === 'grammar' ? '✏️' : englishCategory === 'vocabulary' ? '📖' : '🔍'} games={games} onSelectGame={setCurrentGame} onBack={() => setEnglishCategory(null)} totalStars={totalStars} variant={englishCategory} />;
+    return <GameTilesPage title={englishCategory.charAt(0).toUpperCase() + englishCategory.slice(1)} icon={englishCategory === 'grammar' ? '✏️' : englishCategory === 'vocabulary' ? '📖' : '🔍'} games={games} onSelectGame={handleGameSelect} onBack={() => setEnglishCategory(null)} totalStars={totalStars} variant={englishCategory} />;
   }
   if (currentSubject === 'english') return <EnglishLandingPage onSelectCategory={setEnglishCategory} onBack={handleBackToHome} totalStars={totalStars} />;
-  if (currentSubject === 'math') return <GameTilesPage title="Math Galaxy" icon="🔢" games={MATH_GAMES} onSelectGame={setCurrentGame} onBack={handleBackToHome} totalStars={totalStars} variant="math" />;
+  if (currentSubject === 'math') return <GameTilesPage title="Math Galaxy" icon="🔢" games={MATH_GAMES} onSelectGame={handleGameSelect} onBack={handleBackToHome} totalStars={totalStars} variant="math" />;
 
   return <MainLandingPage onSelectSubject={setCurrentSubject} totalStars={totalStars} onOpenLeaderboard={() => setShowLeaderboard(true)} onOpenQA={() => setShowQA(true)} onOpenSettings={() => setShowSettings(true)} leaderboard={leaderboard} />;
 };
